@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .log { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+        .error { background: #ffe6e6; color: #d63031; }
+        .success { background: #e6ffe6; color: #00b894; }
+        .info { background: #e6f3ff; color: #0984e3; }
+    </style>
+</head>
+<body>
+    <h1>StayIV WebSocket Connection Test</h1>
+    <button onclick="connectWebSocket()">Connect WebSocket</button>
+    <button onclick="disconnectWebSocket()">Disconnect</button>
+    <button onclick="clearLogs()">Clear Logs</button>
+    
+    <div id="status">Status: Not connected</div>
+    <div id="logs"></div>
+
+    <script src="https://cdn.socket.io/4.7.4/socket.io.min.js"></script>
+    <script>
+        let socket = null;
+        
+        function log(message, type = 'info') {
+            const logs = document.getElementById('logs');
+            const logDiv = document.createElement('div');
+            logDiv.className = `log ${type}`;
+            logDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logs.appendChild(logDiv);
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+        
+        function updateStatus(status) {
+            document.getElementById('status').textContent = `Status: ${status}`;
+        }
+        
+        function connectWebSocket() {
+            if (socket) {
+                log('Already connected or connecting', 'info');
+                return;
+            }
+            
+            log('Attempting to connect to WebSocket...', 'info');
+            updateStatus('Connecting...');
+            
+            const url = 'http://localhost:3001/conversations';
+            log(`Connecting to: ${url}`, 'info');
+            
+            socket = io(url, {
+                transports: ['websocket', 'polling'],
+                timeout: 20000,
+                forceNew: true,
+            });
+            
+            socket.on('connect', () => {
+                log('✅ Connected to WebSocket server!', 'success');
+                updateStatus('Connected');
+                
+                // Join conversations room
+                socket.emit('join-conversations', { userId: 'test-user-123' });
+                log('Sent join-conversations event', 'info');
+            });
+            
+            socket.on('welcome', (data) => {
+                log(`📨 Received welcome message: ${JSON.stringify(data)}`, 'success');
+            });
+            
+            socket.on('joined-conversations', (data) => {
+                log(`🎉 Successfully joined conversations: ${JSON.stringify(data)}`, 'success');
+            });
+            
+            socket.on('disconnect', (reason) => {
+                log(`❌ Disconnected: ${reason}`, 'error');
+                updateStatus('Disconnected');
+            });
+            
+            socket.on('connect_error', (error) => {
+                log(`🚫 Connection error: ${error.message}`, 'error');
+                log(`Error details: ${JSON.stringify({
+                    type: error.type,
+                    description: error.description,
+                    context: error.context,
+                    transport: error.transport
+                })}`, 'error');
+                updateStatus('Connection failed');
+            });
+            
+            socket.on('conversation-update', (update) => {
+                log(`💬 Received conversation update: ${JSON.stringify(update)}`, 'success');
+            });
+        }
+        
+        function disconnectWebSocket() {
+            if (socket) {
+                socket.disconnect();
+                socket = null;
+                log('Disconnected from WebSocket', 'info');
+                updateStatus('Disconnected');
+            }
+        }
+        
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+        
+        // Auto-connect on page load
+        window.onload = () => {
+            log('Page loaded. Click "Connect WebSocket" to test the connection.', 'info');
+        };
+    </script>
+</body>
+</html>
