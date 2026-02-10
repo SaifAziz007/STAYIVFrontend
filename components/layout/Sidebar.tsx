@@ -76,8 +76,8 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-200 min-h-screen fixed left-0 top-16">
-      <nav className="p-4 space-y-1">
+    <aside className="w-64 bg-white/95 backdrop-blur-sm border-r border-gray-200 min-h-screen fixed left-0 top-16 shadow-sm">
+      <nav className="p-3 space-y-1">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
@@ -87,14 +87,17 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors',
+                'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative',
                 isActive
-                  ? 'bg-blue-50 text-blue-600'
+                  ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border border-blue-100'
                   : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
               )}
             >
-              <Icon className="h-5 w-5" />
-              <span>{item.name}</span>
+              <Icon className={cn('h-5 w-5 transition-colors', isActive ? 'text-blue-600' : 'text-gray-500')} />
+              <span className={cn('transition-colors', isActive && 'font-semibold')}>{item.name}</span>
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
+              )}
             </Link>
           );
         })}

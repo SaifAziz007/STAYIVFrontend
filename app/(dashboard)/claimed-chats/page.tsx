@@ -184,15 +184,15 @@ export default function ClaimedChatsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Claimed Chats</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Claimed Chats</h1>
           <p className="text-gray-600 mt-1">
             Manage and track your claimed reservations
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
           <Flag className="h-5 w-5 text-blue-600" />
           <span className="text-2xl font-bold text-gray-900">{filteredClaimedChats.length}</span>
-          <span className="text-gray-600">
+          <span className="text-gray-600 text-sm font-medium">
             {selectedDueDate
               ? `Claims Due on ${formatDisplayDate(selectedDueDate)}`
               : statusFilter === 'all'
@@ -366,9 +366,11 @@ export default function ClaimedChatsPage() {
       )}
 
       {filteredClaimedChats.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Flag className="h-16 w-16 text-gray-400 mb-4" />
+        <Card className="border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6">
+              <Flag className="h-16 w-16 text-blue-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {statusFilter === 'all' ? 'No claimed chats yet' : `No ${statusFilter} chats`}
             </h2>
@@ -385,7 +387,7 @@ export default function ClaimedChatsPage() {
       ) : (
         <div className="space-y-4">
           {filteredClaimedChats.map((chat) => (
-            <Card key={chat.id} className="hover:shadow-md transition-shadow">
+            <Card key={chat.id} className="hover:shadow-md transition-shadow border-gray-200">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

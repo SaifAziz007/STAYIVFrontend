@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2 } from 'lucide-react';
+import { Loader2, DollarSign } from 'lucide-react';
 import { pendingPaymentsApi } from '@/lib/pending-payments-api';
 import { useToast } from '@/hooks/use-toast';
 
@@ -81,25 +81,30 @@ export default function PendingPaymentModal({ isOpen, onClose, reservationData }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Pending Payment</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-green-100">
+              <DollarSign className="h-5 w-5 text-green-600" />
+            </div>
+            Pending Payment
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
             Log a pending payment for {reservationData.guestName} at {reservationData.propertyName || 'the property'}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-5 py-4">
           <div className="space-y-3">
-            <Label>Payment Type</Label>
-            <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as 'deposit' | 'refund')}>
-              <div className="flex items-center space-x-2">
+            <Label className="text-sm font-semibold text-gray-900">Payment Type</Label>
+            <RadioGroup value={paymentType} onValueChange={(value) => setPaymentType(value as 'deposit' | 'refund')} className="space-y-3">
+              <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                 <RadioGroupItem value="deposit" id="deposit" />
-                <Label htmlFor="deposit" className="font-normal cursor-pointer">
+                <Label htmlFor="deposit" className="font-medium cursor-pointer text-gray-900">
                   Deposit
                 </Label>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                 <RadioGroupItem value="refund" id="refund" />
-                <Label htmlFor="refund" className="font-normal cursor-pointer">
+                <Label htmlFor="refund" className="font-medium cursor-pointer text-gray-900">
                   Refund
                 </Label>
               </div>
@@ -107,23 +112,23 @@ export default function PendingPaymentModal({ isOpen, onClose, reservationData }
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="reason">Reason</Label>
+            <Label htmlFor="reason" className="text-sm font-semibold text-gray-900">Reason</Label>
             <Textarea
               id="reason"
               placeholder="Enter the reason for this payment..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={5}
-              className="resize-none"
+              className="resize-none border-gray-300 focus:border-green-500 focus:ring-green-500"
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} disabled={submitting}>
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+          <Button variant="outline" onClick={onClose} disabled={submitting} className="min-w-[100px]">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting}>
+          <Button onClick={handleSubmit} disabled={submitting} className="bg-green-600 hover:bg-green-700 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

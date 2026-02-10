@@ -89,7 +89,7 @@ export default function PendingPaymentsPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
+      <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Pending Payments</h1>
         <p className="text-gray-600 mt-1">
           Track deposits and refunds for guest reservations
@@ -97,10 +97,12 @@ export default function PendingPaymentsPage() {
       </div>
 
       {payments.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Pending Payments</h3>
+        <Card className="border-gray-200">
+          <CardContent className="p-16 text-center">
+            <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl inline-flex mb-6">
+              <DollarSign className="h-12 w-12 text-green-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Pending Payments</h3>
             <p className="text-gray-600">
               Payment records logged from conversations will appear here
             </p>
@@ -109,44 +111,51 @@ export default function PendingPaymentsPage() {
       ) : (
         <div className="grid gap-4">
           {payments.map((payment) => (
-            <Card key={payment.id}>
+            <Card key={payment.id} className="border-gray-200 hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{payment.guestName}</CardTitle>
+                    <div className="flex items-center gap-3 mb-3">
+                      <CardTitle className="text-lg font-semibold text-gray-900">{payment.guestName}</CardTitle>
                       <Badge 
-                        variant={payment.paymentType === 'deposit' ? 'default' : 'secondary'}
-                        className={payment.paymentType === 'deposit' ? 'bg-green-600' : 'bg-orange-600'}
+                        className={payment.paymentType === 'deposit' 
+                          ? 'bg-green-100 text-green-800 border-green-200' 
+                          : 'bg-orange-100 text-orange-800 border-orange-200'}
                       >
-                        {payment.paymentType}
+                        {payment.paymentType.toUpperCase()}
                       </Badge>
-                      <Badge variant={payment.status === 'pending' ? 'outline' : 'secondary'}>
-                        {payment.status}
+                      <Badge 
+                        className={payment.status === 'pending' 
+                          ? 'bg-yellow-100 text-yellow-800 border-yellow-200' 
+                          : payment.status === 'completed'
+                          ? 'bg-green-100 text-green-800 border-green-200'
+                          : 'bg-gray-100 text-gray-800 border-gray-200'}
+                      >
+                        {payment.status.toUpperCase()}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap gap-4 text-sm">
                       {payment.propertyName && (
-                        <div className="flex items-center gap-1">
-                          <Home className="h-4 w-4" />
-                          <span>{payment.propertyName}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Home className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium">{payment.propertyName}</span>
                         </div>
                       )}
                       {payment.reservationCode && (
-                        <div className="flex items-center gap-1">
-                          <DollarSign className="h-4 w-4" />
-                          <span>{payment.reservationCode}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <DollarSign className="h-4 w-4 text-gray-500" />
+                          <span className="font-mono text-xs">{payment.reservationCode}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Calendar className="h-4 w-4 text-gray-500" />
                         <span>
                           {payment.checkInDate} - {payment.checkOutDate}
                         </span>
                       </div>
                       {payment.numberOfGuests && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Users className="h-4 w-4 text-gray-500" />
                           <span>{payment.numberOfGuests} guests</span>
                         </div>
                       )}
@@ -156,20 +165,21 @@ export default function PendingPaymentsPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(payment.id)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="h-4 w-4 text-red-600" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="font-medium text-gray-700 mb-2">Reason</h4>
-                    <p className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <h4 className="font-semibold text-gray-900 mb-2">Reason</h4>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg border border-gray-200">
                       {payment.reason}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500">
                       Created: {new Date(payment.createdAt).toLocaleString()}
                     </p>
@@ -179,6 +189,7 @@ export default function PendingPaymentsPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleUpdateStatus(payment.id, 'completed')}
+                          className="gap-2"
                         >
                           Mark as Completed
                         </Button>
@@ -186,6 +197,7 @@ export default function PendingPaymentsPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => handleUpdateStatus(payment.id, 'cancelled')}
+                          className="gap-2"
                         >
                           Cancel
                         </Button>

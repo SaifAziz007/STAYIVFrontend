@@ -89,7 +89,7 @@ export default function FormCollectionPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
+      <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Form Collection</h1>
         <p className="text-gray-600 mt-1">
           Documents and forms collected from guest reservations
@@ -97,10 +97,12 @@ export default function FormCollectionPage() {
       </div>
 
       {forms.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Forms Collected</h3>
+        <Card className="border-gray-200">
+          <CardContent className="p-16 text-center">
+            <div className="p-4 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-2xl inline-flex mb-6">
+              <Upload className="h-12 w-12 text-indigo-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Forms Collected</h3>
             <p className="text-gray-600">
               Forms uploaded from conversations will appear here
             </p>
@@ -109,38 +111,38 @@ export default function FormCollectionPage() {
       ) : (
         <div className="grid gap-4">
           {forms.map((form) => (
-            <Card key={form.id}>
+            <Card key={form.id} className="border-gray-200 hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{form.guestName}</CardTitle>
-                      <Badge variant="outline" className="uppercase">
+                    <div className="flex items-center gap-3 mb-3">
+                      <CardTitle className="text-lg font-semibold text-gray-900">{form.guestName}</CardTitle>
+                      <Badge variant="outline" className="uppercase bg-indigo-50 text-indigo-700 border-indigo-200">
                         {form.fileType}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap gap-4 text-sm">
                       {form.propertyName && (
-                        <div className="flex items-center gap-1">
-                          <Home className="h-4 w-4" />
-                          <span>{form.propertyName}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Home className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium">{form.propertyName}</span>
                         </div>
                       )}
                       {form.reservationCode && (
-                        <div className="flex items-center gap-1">
-                          <File className="h-4 w-4" />
-                          <span>{form.reservationCode}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <File className="h-4 w-4 text-gray-500" />
+                          <span className="font-mono text-xs">{form.reservationCode}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Calendar className="h-4 w-4 text-gray-500" />
                         <span>
                           {form.checkInDate} - {form.checkOutDate}
                         </span>
                       </div>
                       {form.numberOfGuests && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Users className="h-4 w-4 text-gray-500" />
                           <span>{form.numberOfGuests} guests</span>
                         </div>
                       )}
@@ -150,18 +152,21 @@ export default function FormCollectionPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(form.id)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="h-4 w-4 text-red-600" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between bg-gray-50 p-4 rounded-lg border border-gray-200">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between bg-gradient-to-r from-indigo-50 to-purple-50 p-4 rounded-lg border border-indigo-200">
                     <div className="flex items-center gap-3">
-                      <File className="h-8 w-8 text-blue-600" />
+                      <div className="p-2 bg-indigo-100 rounded-lg">
+                        <File className="h-6 w-6 text-indigo-600" />
+                      </div>
                       <div>
-                        <p className="font-medium text-gray-900">{form.fileName}</p>
+                        <p className="font-semibold text-gray-900">{form.fileName}</p>
                         <p className="text-sm text-gray-500">{formatFileSize(form.fileSize)}</p>
                       </div>
                     </div>
@@ -169,12 +174,13 @@ export default function FormCollectionPage() {
                       size="sm"
                       variant="outline"
                       onClick={() => handleDownload(form.fileUrl, form.fileName)}
+                      className="gap-2"
                     >
-                      <Download className="h-4 w-4 mr-2" />
+                      <Download className="h-4 w-4" />
                       Download
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500">
                       Uploaded: {new Date(form.createdAt).toLocaleString()}
                     </p>

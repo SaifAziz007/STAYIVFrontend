@@ -151,23 +151,30 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Form Collection</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-indigo-100">
+              <Upload className="h-5 w-5 text-indigo-600" />
+            </div>
+            Form Collection
+          </DialogTitle>
+          <DialogDescription className="text-gray-600">
             Upload a form for {reservationData.guestName} at {reservationData.propertyName || 'the property'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label>Upload File (PDF, DOC, DOCX, XLS, XLSX, CSV)</Label>
+            <Label className="text-sm font-semibold text-gray-900">Upload File (PDF, DOC, DOCX, XLS, XLSX, CSV)</Label>
             
             {!selectedFile ? (
               <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer"
+                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <p className="text-sm text-gray-600 mb-2">
+                <div className="p-3 bg-gray-100 rounded-lg inline-flex mb-3">
+                  <Upload className="h-6 w-6 text-gray-500" />
+                </div>
+                <p className="text-sm font-medium text-gray-700 mb-1">
                   Click to upload or drag and drop
                 </p>
                 <p className="text-xs text-gray-500">
@@ -175,11 +182,13 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
                 </p>
               </div>
             ) : (
-              <div className="border border-gray-300 rounded-lg p-4 flex items-center justify-between">
+              <div className="border border-gray-300 rounded-xl p-4 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-purple-50">
                 <div className="flex items-center gap-3">
-                  <File className="h-8 w-8 text-blue-600" />
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <File className="h-6 w-6 text-indigo-600" />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">{selectedFile.name}</p>
+                    <p className="text-sm font-semibold text-gray-900">{selectedFile.name}</p>
                     <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
                   </div>
                 </div>
@@ -188,6 +197,7 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
                   size="sm"
                   onClick={handleRemoveFile}
                   disabled={uploading}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -204,11 +214,11 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
           </div>
         </div>
 
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" onClick={onClose} disabled={uploading}>
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+          <Button variant="outline" onClick={onClose} disabled={uploading} className="min-w-[100px]">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={uploading || !selectedFile}>
+          <Button onClick={handleSubmit} disabled={uploading || !selectedFile} className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
             {uploading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

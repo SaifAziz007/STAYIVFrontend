@@ -14,15 +14,15 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop - Modern subtle overlay */}
       <div
-        className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm"
+        className="fixed inset-0 bg-gray-900/20 backdrop-blur-[2px] transition-opacity"
         onClick={() => onOpenChange(false)}
       />
       
       {/* Dialog Content */}
-      <div className="relative z-50">{children}</div>
+      <div className="relative z-50 w-full max-w-lg animate-in fade-in-0 zoom-in-95 duration-200">{children}</div>
     </div>
   );
 }
@@ -37,7 +37,7 @@ export function DialogContent({
   return (
     <div
       className={cn(
-        'bg-white rounded-lg shadow-xl p-6 max-h-[90vh] overflow-y-auto',
+        'bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 max-h-[90vh] overflow-y-auto',
         className
       )}
     >
@@ -63,7 +63,7 @@ export function DialogTitle({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <h2 className={cn('text-xl font-semibold', className)}>{children}</h2>;
+  return <h2 className={cn('text-xl font-bold text-gray-900', className)}>{children}</h2>;
 }
 
 export function DialogDescription({

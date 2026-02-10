@@ -53,7 +53,7 @@ export default function ReviewsPage() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Reviews</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Reviews</h1>
           <p className="text-gray-600 mt-1">
             View and manage reviews for all your properties
           </p>
@@ -75,16 +75,18 @@ export default function ReviewsPage() {
       )}
 
       {properties.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Building2 className="h-16 w-16 text-gray-400 mb-4" />
+        <Card className="border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6">
+              <Building2 className="h-16 w-16 text-blue-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               No properties found
             </h2>
             <p className="text-gray-600 mb-6 text-center max-w-md">
               Connect your Hospitable account and sync your properties to view reviews.
             </p>
-            <Button onClick={() => router.push('/settings')}>
+            <Button onClick={() => router.push('/settings')} className="gap-2">
               Connect Hospitable
             </Button>
           </CardContent>
@@ -94,23 +96,23 @@ export default function ReviewsPage() {
           {properties.map((property) => (
             <Card
               key={property.id}
-              className="hover:shadow-lg transition-all cursor-pointer group"
+              className="hover:shadow-lg transition-all duration-200 cursor-pointer group border-gray-200"
               onClick={() => handlePropertyClick(property.hospitablePropertyId)}
             >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg group-hover:text-blue-600 transition-colors">
+                    <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
                       {property.name}
                     </CardTitle>
-                    <CardDescription className="mt-1">
+                    <CardDescription className="mt-2">
                       {property.hospitablePropertyId ? (
-                        <span className="text-green-600 text-sm">
-                          ✓ Connected to Hospitable
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-green-50 text-green-700 text-xs font-medium border border-green-200">
+                          <span>✓</span> Connected to Hospitable
                         </span>
                       ) : (
-                        <span className="text-orange-600 text-sm">
-                          ⚠ Not connected to Hospitable
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-orange-50 text-orange-700 text-xs font-medium border border-orange-200">
+                          <span>⚠</span> Not connected
                         </span>
                       )}
                     </CardDescription>
@@ -118,34 +120,32 @@ export default function ReviewsPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <Star className="h-5 w-5 text-yellow-400" />
-                    <span className="text-sm text-gray-600">
+                    <Star className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                    <span className="text-sm font-semibold text-gray-900">
                       {property.averageRating 
                         ? `${property.averageRating} stars`
                         : 'No reviews yet'
                       }
                     </span>
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 font-medium">
                     {property.totalReviews || 0} reviews
                   </div>
                 </div>
-                <div className="mt-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    disabled={!property.hospitablePropertyId}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handlePropertyClick(property.hospitablePropertyId);
-                    }}
-                  >
-                    View Reviews
-                  </Button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  disabled={!property.hospitablePropertyId}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePropertyClick(property.hospitablePropertyId);
+                  }}
+                >
+                  View Reviews
+                </Button>
               </CardContent>
             </Card>
           ))}

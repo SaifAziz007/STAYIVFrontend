@@ -116,8 +116,8 @@ export default function HospitableSettingsPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">🏠 Hospitable Integration</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">🏠 Hospitable Integration</h1>
+        <p className="text-gray-600">
           Connect your Hospitable account to automatically sync your properties
         </p>
       </div>

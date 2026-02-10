@@ -214,54 +214,57 @@ export default function ClaimChatModal({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <IconComponent className={`h-5 w-5 ${config.iconColor}`} />
+                    <DialogTitle className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${actionType === 'claim' ? 'bg-blue-100' : actionType === 'review' ? 'bg-orange-100' : 'bg-purple-100'}`}>
+                            <IconComponent className={`h-5 w-5 ${config.iconColor}`} />
+                        </div>
                         {config.title}
                     </DialogTitle>
                 </DialogHeader>
 
                 {/* Reservation Details */}
-                <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                    <h3 className="font-semibold text-gray-900">Reservation Details</h3>
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100/50 p-5 rounded-xl border border-gray-200 space-y-3">
+                    <h3 className="font-semibold text-gray-900 text-sm uppercase tracking-wide">Reservation Details</h3>
                     <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                            <span className="text-gray-600">Guest:</span>
-                            <span className="ml-2 font-medium">{reservationData.guestName}</span>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Guest</span>
+                            <span className="font-semibold text-gray-900">{reservationData.guestName}</span>
                         </div>
-                        <div>
-                            <span className="text-gray-600">Code:</span>
-                            <span className="ml-2 font-mono">{reservationData.reservationCode}</span>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Code</span>
+                            <span className="font-mono text-gray-900">{reservationData.reservationCode}</span>
                         </div>
-                        <div>
-                            <span className="text-gray-600">Check-in:</span>
-                            <span className="ml-2">{new Date(reservationData.checkInDate).toLocaleDateString()}</span>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Check-in</span>
+                            <span className="font-medium text-gray-900">{new Date(reservationData.checkInDate).toLocaleDateString()}</span>
                         </div>
-                        <div>
-                            <span className="text-gray-600">Check-out:</span>
-                            <span className="ml-2">{new Date(reservationData.checkOutDate).toLocaleDateString()}</span>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Check-out</span>
+                            <span className="font-medium text-gray-900">{new Date(reservationData.checkOutDate).toLocaleDateString()}</span>
                         </div>
-                        <div>
-                            <span className="text-gray-600">Platform:</span>
-                            <Badge className="ml-2" variant="outline">{reservationData.platform.toUpperCase()}</Badge>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Platform</span>
+                            <Badge className="w-fit mt-0.5" variant="outline">{reservationData.platform.toUpperCase()}</Badge>
                         </div>
-                        <div>
-                            <span className="text-gray-600">Guests:</span>
-                            <span className="ml-2">{reservationData.numberOfGuests}</span>
+                        <div className="flex flex-col">
+                            <span className="text-gray-500 text-xs font-medium mb-1">Guests</span>
+                            <span className="font-medium text-gray-900">{reservationData.numberOfGuests}</span>
                         </div>
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-5 mt-6">
                     {/* Claim-specific fields */}
                     {actionType === 'claim' && (
                         <div className="space-y-2">
-                            <Label htmlFor="claimReason">Claim Reason *</Label>
+                            <Label htmlFor="claimReason" className="text-sm font-semibold text-gray-900">Claim Reason *</Label>
                             <Input
                                 id="claimReason"
                                 value={claimReason}
                                 onChange={(e) => setClaimReason(e.target.value)}
                                 placeholder="Why are you claiming this conversation?"
                                 required
+                                className="border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                             />
                         </div>
                     )}
@@ -270,22 +273,24 @@ export default function ClaimChatModal({
                     {actionType === 'lost-found' && (
                         <>
                             <div className="space-y-2">
-                                <Label htmlFor="itemDescription">Item Description *</Label>
+                                <Label htmlFor="itemDescription" className="text-sm font-semibold text-gray-900">Item Description *</Label>
                                 <Input
                                     id="itemDescription"
                                     value={itemDescription}
                                     onChange={(e) => setItemDescription(e.target.value)}
                                     placeholder="Describe the lost item"
                                     required
+                                    className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="itemLocation">Last Known Location</Label>
+                                <Label htmlFor="itemLocation" className="text-sm font-semibold text-gray-900">Last Known Location</Label>
                                 <Input
                                     id="itemLocation"
                                     value={itemLocation}
                                     onChange={(e) => setItemLocation(e.target.value)}
                                     placeholder="Where was the item last seen?"
+                                    className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
                                 />
                             </div>
                         </>
@@ -293,7 +298,7 @@ export default function ClaimChatModal({
 
                     {/* Notes field (for all actions) */}
                     <div className="space-y-2">
-                        <Label htmlFor="notes">
+                        <Label htmlFor="notes" className="text-sm font-semibold text-gray-900">
                             {actionType === 'review' ? 'Review Details *' : 'Additional Notes'}
                         </Label>
                         <Textarea
@@ -305,17 +310,18 @@ export default function ClaimChatModal({
                                     ? "Describe the issue or reason for review/removal..."
                                     : "Any additional information..."
                             }
-                            rows={3}
+                            rows={4}
                             required={actionType === 'review'}
+                            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 resize-none"
                         />
                     </div>
 
                     {/* File Upload */}
                     <div className="space-y-2">
-                        <Label>
+                        <Label className="text-sm font-semibold text-gray-900">
                             Attachments {actionType === 'lost-found' ? '(Images only)' : '(Images & PDFs)'}
                         </Label>
-                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                        <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-gray-400 hover:bg-gray-50/50 transition-all cursor-pointer">
                             <input
                                 type="file"
                                 multiple
@@ -328,11 +334,13 @@ export default function ClaimChatModal({
                                 htmlFor="file-upload"
                                 className="flex flex-col items-center justify-center cursor-pointer"
                             >
-                                <Upload className="h-8 w-8 text-gray-400 mb-2" />
-                                <span className="text-sm text-gray-600">
+                                <div className="p-3 bg-gray-100 rounded-lg mb-3">
+                                    <Upload className="h-6 w-6 text-gray-500" />
+                                </div>
+                                <span className="text-sm font-medium text-gray-700 mb-1">
                                     Click to upload files or drag and drop
                                 </span>
-                                <span className="text-xs text-gray-500 mt-1">
+                                <span className="text-xs text-gray-500">
                                     {actionType === 'lost-found' ? 'PNG, JPG, GIF up to 10MB each' : 'PNG, JPG, GIF, PDF up to 10MB each'}
                                 </span>
                             </label>
@@ -340,15 +348,16 @@ export default function ClaimChatModal({
 
                         {/* File List */}
                         {files.length > 0 && (
-                            <div className="space-y-2">
+                            <div className="space-y-2 mt-3">
                                 {files.map((file, index) => (
-                                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                                        <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                                    <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                        <span className="text-sm text-gray-700 truncate font-medium">{file.name}</span>
                                         <Button
                                             type="button"
                                             variant="ghost"
                                             size="sm"
                                             onClick={() => removeFile(index)}
+                                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                                         >
                                             <X className="h-4 w-4" />
                                         </Button>
@@ -359,14 +368,14 @@ export default function ClaimChatModal({
                     </div>
 
                     {/* Submit Buttons */}
-                    <div className="flex justify-end gap-2 pt-4">
-                        <Button type="button" variant="outline" onClick={onClose}>
+                    <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+                        <Button type="button" variant="outline" onClick={onClose} className="min-w-[100px]">
                             Cancel
                         </Button>
                         <Button
                             type="submit"
                             disabled={loading}
-                            className={config.submitColor}
+                            className={`${config.submitColor} min-w-[140px] shadow-sm hover:shadow-md transition-shadow`}
                         >
                             {loading ? (
                                 <>

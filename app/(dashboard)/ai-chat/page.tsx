@@ -176,8 +176,8 @@ export default function AIChatPage() {
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">🤖 AI Property Assistant</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">🤖 AI Property Assistant</h1>
+        <p className="text-gray-600">
           Test the AI's knowledge about your properties. Select a property, index it, and start asking questions!
         </p>
       </div>

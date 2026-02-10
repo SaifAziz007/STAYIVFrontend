@@ -151,15 +151,15 @@ export default function CleaningPage() {
             {/* Header */}
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Cleaning Schedule</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Cleaning Schedule</h1>
                     <p className="text-gray-600 mt-1">
                         Manage property cleanings based on checkout dates
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
                     <Sparkles className="h-5 w-5 text-blue-600" />
                     <span className="text-2xl font-bold text-gray-900">{reservations.length}</span>
-                    <span className="text-gray-600">Cleanings</span>
+                    <span className="text-gray-600 text-sm font-medium">Cleanings</span>
                 </div>
             </div>
 
@@ -250,9 +250,11 @@ export default function CleaningPage() {
                 /* Pending Cleanings */
                 <div>
                     {pendingCleanings.length === 0 ? (
-                        <Card>
-                            <CardContent className="flex flex-col items-center justify-center py-16">
-                                <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
+                        <Card className="border-gray-200">
+                            <CardContent className="flex flex-col items-center justify-center py-20">
+                                <div className="p-4 bg-gradient-to-br from-green-100 to-emerald-100 rounded-2xl mb-6">
+                                    <CheckCircle className="h-16 w-16 text-green-600" />
+                                </div>
                                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
                                     All cleanings completed! 🎉
                                 </h2>
@@ -266,7 +268,7 @@ export default function CleaningPage() {
                                 const guestsData = conversationsApi.parseGuestsData(reservation.guestsData);
 
                                 return (
-                                    <Card key={reservation.id} className="hover:shadow-md transition-shadow">
+                                    <Card key={reservation.id} className="hover:shadow-md transition-shadow border-gray-200">
                                         <CardHeader>
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
@@ -335,9 +337,11 @@ export default function CleaningPage() {
                 /* Completed Cleanings */
                 <div>
                     {completedCleanings.length === 0 ? (
-                        <Card>
-                            <CardContent className="flex flex-col items-center justify-center py-16">
-                                <Sparkles className="h-16 w-16 text-gray-400 mb-4" />
+                        <Card className="border-gray-200">
+                            <CardContent className="flex flex-col items-center justify-center py-20">
+                                <div className="p-4 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl mb-6">
+                                    <Sparkles className="h-16 w-16 text-gray-500" />
+                                </div>
                                 <h2 className="text-xl font-semibold text-gray-900 mb-2">
                                     No completed cleanings yet
                                 </h2>
@@ -354,7 +358,7 @@ export default function CleaningPage() {
                                 const cleaningRecord = cleanings.find(c => c.reservationId === reservation.id);
 
                                 return (
-                                    <Card key={reservation.id} className="border-green-200 bg-green-50/30">
+                                    <Card key={reservation.id} className="border-green-200 bg-green-50/50">
                                         <CardHeader>
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">

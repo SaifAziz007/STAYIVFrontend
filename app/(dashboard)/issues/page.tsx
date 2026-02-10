@@ -89,7 +89,7 @@ export default function IssuesPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
+      <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Open Issues</h1>
         <p className="text-gray-600 mt-1">
           Track and manage issues reported for guest reservations
@@ -97,10 +97,12 @@ export default function IssuesPage() {
       </div>
 
       {issues.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Issues Found</h3>
+        <Card className="border-gray-200">
+          <CardContent className="p-16 text-center">
+            <div className="p-4 bg-gradient-to-br from-red-100 to-orange-100 rounded-2xl inline-flex mb-6">
+              <FileText className="h-12 w-12 text-red-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No Issues Found</h3>
             <p className="text-gray-600">
               Issues logged from conversations will appear here
             </p>
@@ -109,38 +111,41 @@ export default function IssuesPage() {
       ) : (
         <div className="grid gap-4">
           {issues.map((issue) => (
-            <Card key={issue.id}>
+            <Card key={issue.id} className="border-gray-200 hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <CardTitle className="text-lg">{issue.guestName}</CardTitle>
-                      <Badge variant={issue.status === 'open' ? 'destructive' : 'secondary'}>
-                        {issue.status}
+                    <div className="flex items-center gap-3 mb-3">
+                      <CardTitle className="text-lg font-semibold text-gray-900">{issue.guestName}</CardTitle>
+                      <Badge 
+                        variant={issue.status === 'open' ? 'destructive' : 'secondary'}
+                        className={issue.status === 'open' ? 'bg-red-100 text-red-800 border-red-200' : 'bg-gray-100 text-gray-800 border-gray-200'}
+                      >
+                        {issue.status.toUpperCase()}
                       </Badge>
                     </div>
-                    <div className="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div className="flex flex-wrap gap-4 text-sm">
                       {issue.propertyName && (
-                        <div className="flex items-center gap-1">
-                          <Home className="h-4 w-4" />
-                          <span>{issue.propertyName}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Home className="h-4 w-4 text-gray-500" />
+                          <span className="font-medium">{issue.propertyName}</span>
                         </div>
                       )}
                       {issue.reservationCode && (
-                        <div className="flex items-center gap-1">
-                          <FileText className="h-4 w-4" />
-                          <span>{issue.reservationCode}</span>
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <FileText className="h-4 w-4 text-gray-500" />
+                          <span className="font-mono text-xs">{issue.reservationCode}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-4 w-4" />
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Calendar className="h-4 w-4 text-gray-500" />
                         <span>
                           {issue.checkInDate} - {issue.checkOutDate}
                         </span>
                       </div>
                       {issue.numberOfGuests && (
-                        <div className="flex items-center gap-1">
-                          <Users className="h-4 w-4" />
+                        <div className="flex items-center gap-1.5 text-gray-600">
+                          <Users className="h-4 w-4 text-gray-500" />
                           <span>{issue.numberOfGuests} guests</span>
                         </div>
                       )}
@@ -150,8 +155,9 @@ export default function IssuesPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(issue.id)}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="h-4 w-4 text-red-600" />
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
@@ -159,21 +165,27 @@ export default function IssuesPage() {
                 <div className="space-y-4">
                   {issue.openIssues && (
                     <div>
-                      <h4 className="font-medium text-red-700 mb-2">Open Issues</h4>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap bg-red-50 p-3 rounded-lg border border-red-200">
+                      <h4 className="font-semibold text-red-700 mb-2 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                        Open Issues
+                      </h4>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap bg-red-50 p-4 rounded-lg border border-red-200">
                         {issue.openIssues}
                       </p>
                     </div>
                   )}
                   {issue.closedIssues && (
                     <div>
-                      <h4 className="font-medium text-green-700 mb-2">Closed Issues</h4>
-                      <p className="text-sm text-gray-700 whitespace-pre-wrap bg-green-50 p-3 rounded-lg border border-green-200">
+                      <h4 className="font-semibold text-green-700 mb-2 flex items-center gap-2">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        Closed Issues
+                      </h4>
+                      <p className="text-sm text-gray-700 whitespace-pre-wrap bg-green-50 p-4 rounded-lg border border-green-200">
                         {issue.closedIssues}
                       </p>
                     </div>
                   )}
-                  <div className="flex items-center justify-between pt-2 border-t">
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
                     <p className="text-xs text-gray-500">
                       Created: {new Date(issue.createdAt).toLocaleString()}
                     </p>
@@ -182,6 +194,7 @@ export default function IssuesPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleUpdateStatus(issue.id, 'closed')}
+                        className="gap-2"
                       >
                         Mark as Closed
                       </Button>

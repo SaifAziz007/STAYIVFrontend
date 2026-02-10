@@ -16,8 +16,8 @@ export default function DashboardPage() {
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Welcome Section */}
       <div className="text-center py-12">
-        <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6">
-          <Sparkles className="h-10 w-10 text-blue-600" />
+        <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-6 shadow-lg">
+          <Sparkles className="h-10 w-10 text-white" />
         </div>
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
           Welcome to StayIV
@@ -30,11 +30,11 @@ export default function DashboardPage() {
 
       {/* Quick Stats/Info Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="group hover:shadow-lg transition-all duration-200 border-blue-100 hover:border-blue-200">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-blue-100 rounded-lg">
-                <Building2 className="h-6 w-6 text-blue-600" />
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
+                <Building2 className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Properties</h3>
@@ -46,11 +46,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="group hover:shadow-lg transition-all duration-200 border-green-100 hover:border-green-200">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-green-100 rounded-lg">
-                <MessageSquare className="h-6 w-6 text-green-600" />
+              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
+                <MessageSquare className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">AI Chat</h3>
@@ -62,11 +62,11 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow">
+        <Card className="group hover:shadow-lg transition-all duration-200 border-purple-100 hover:border-purple-200">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
-              <div className="p-3 bg-purple-100 rounded-lg">
-                <Settings className="h-6 w-6 text-purple-600" />
+              <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl shadow-sm group-hover:shadow-md transition-shadow">
+                <Settings className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Settings</h3>
@@ -80,56 +80,56 @@ export default function DashboardPage() {
       </div>
 
       {/* Getting Started Section */}
-      <Card>
+      <Card className="border-gray-200">
         <CardContent className="pt-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6">
             Getting Started
           </h2>
-          <div className="space-y-3 text-gray-700">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+          <div className="space-y-4 text-gray-700">
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
                 1
               </div>
               <div>
-                <p className="font-medium">Add Your Properties</p>
+                <p className="font-semibold text-gray-900 mb-1">Add Your Properties</p>
                 <p className="text-sm text-gray-600">
-                  Navigate to <span className="font-medium">Properties</span> to add and manage your vacation rentals
+                  Navigate to <span className="font-medium text-gray-900">Properties</span> to add and manage your vacation rentals
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
                 2
               </div>
               <div>
-                <p className="font-medium">Fill Property Sheets</p>
+                <p className="font-semibold text-gray-900 mb-1">Fill Property Sheets</p>
                 <p className="text-sm text-gray-600">
                   Complete property information to train the AI for better guest communication
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
                 3
               </div>
               <div>
-                <p className="font-medium">Connect Hospitable</p>
+                <p className="font-semibold text-gray-900 mb-1">Connect Hospitable</p>
                 <p className="text-sm text-gray-600">
-                  Go to <span className="font-medium">Settings</span> to connect your Hospitable account for automated syncing
+                  Go to <span className="font-medium text-gray-900">Settings</span> to connect your Hospitable account for automated syncing
                 </p>
               </div>
             </div>
             
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium">
+            <div className="flex items-start gap-4 p-4 rounded-lg hover:bg-gray-50 transition-colors">
+              <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm">
                 4
               </div>
               <div>
-                <p className="font-medium">Test AI Responses</p>
+                <p className="font-semibold text-gray-900 mb-1">Test AI Responses</p>
                 <p className="text-sm text-gray-600">
-                  Use <span className="font-medium">AI Chat</span> to test how the AI handles guest questions
+                  Use <span className="font-medium text-gray-900">AI Chat</span> to test how the AI handles guest questions
                 </p>
               </div>
             </div>

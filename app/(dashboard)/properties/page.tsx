@@ -64,21 +64,23 @@ export default function PropertiesPage() {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Properties</h1>
+          <h1 className="text-2xl font-bold text-gray-900">My Properties</h1>
           <p className="text-gray-600 mt-1">
             Manage your vacation rental properties
           </p>
         </div>
-        <Button onClick={handleCreateProperty} disabled={creating}>
-          <PlusCircle className="mr-2 h-4 w-4" />
+        <Button onClick={handleCreateProperty} disabled={creating} className="gap-2 shadow-sm">
+          <PlusCircle className="h-4 w-4" />
           {creating ? 'Creating...' : 'Add Property'}
         </Button>
       </div>
 
       {properties.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Home className="h-16 w-16 text-gray-400 mb-4" />
+        <Card className="border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6">
+              <Home className="h-16 w-16 text-blue-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               No properties yet
             </h2>
@@ -86,8 +88,8 @@ export default function PropertiesPage() {
               Get started by adding your first property. You&apos;ll be able to fill in
               details and train the AI to handle guest communication.
             </p>
-            <Button onClick={handleCreateProperty} disabled={creating}>
-              <PlusCircle className="mr-2 h-4 w-4" />
+            <Button onClick={handleCreateProperty} disabled={creating} className="gap-2">
+              <PlusCircle className="h-4 w-4" />
               Add Your First Property
             </Button>
           </CardContent>
@@ -95,10 +97,10 @@ export default function PropertiesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {properties.map((property) => (
-            <Card key={property.id} className="hover:shadow-lg transition-shadow">
+            <Card key={property.id} className="hover:shadow-lg transition-all duration-200 border-gray-200 group">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>
+                  <span className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
                     {property.propertySheet?.identityData?.propertyName || 'Unnamed Property'}
                   </span>
                   <Button
@@ -110,22 +112,22 @@ export default function PropertiesPage() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm">
                   {property.propertySheet?.identityData?.address?.city || 'No location set'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-gray-600">Overall Completion</span>
-                      <span className="font-semibold">
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span className="text-gray-600 font-medium">Overall Completion</span>
+                      <span className="font-semibold text-gray-900">
                         {property.propertySheet?.overallCompletion || 0}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
                       <div
-                        className="bg-blue-600 h-2 rounded-full transition-all"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full transition-all duration-500 shadow-sm"
                         style={{
                           width: `${property.propertySheet?.overallCompletion || 0}%`,
                         }}
@@ -133,15 +135,15 @@ export default function PropertiesPage() {
                     </div>
                   </div>
 
-                  <div className="text-xs text-gray-600">
-                    AI Status:{' '}
-                    <span className="font-medium">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <span className="text-xs text-gray-600 font-medium">AI Status</span>
+                    <span className="text-xs font-semibold text-gray-900">
                       {property.propertySheet?.aiTrainingStatus || 'Not Started'}
                     </span>
                   </div>
 
                   <Link href={`/property-sheet/${property.id}`}>
-                    <Button className="w-full" variant="outline">
+                    <Button className="w-full" variant="outline" size="sm">
                       Edit Property Sheet
                     </Button>
                   </Link>

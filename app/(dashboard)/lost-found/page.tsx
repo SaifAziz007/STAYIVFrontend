@@ -153,15 +153,15 @@ export default function LostAndFoundPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Lost & Found</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Lost & Found</h1>
           <p className="text-gray-600 mt-1">
             Manage lost and found items from guest reservations
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 px-4 py-2 bg-purple-50 rounded-lg border border-purple-200">
           <Package className="h-5 w-5 text-purple-600" />
           <span className="text-2xl font-bold text-gray-900">{filteredEntries.length}</span>
-          <span className="text-gray-600">
+          <span className="text-gray-600 text-sm font-medium">
             {statusFilter === 'all' ? 'Total Items' : `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Items`}
           </span>
         </div>
@@ -261,9 +261,11 @@ export default function LostAndFoundPage() {
       )}
 
       {filteredEntries.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <Package className="h-16 w-16 text-gray-400 mb-4" />
+        <Card className="border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="p-4 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-2xl mb-6">
+              <Package className="h-16 w-16 text-purple-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {statusFilter === 'all' ? 'No lost & found entries yet' : `No ${statusFilter} items`}
             </h2>
@@ -278,7 +280,7 @@ export default function LostAndFoundPage() {
       ) : (
         <div className="space-y-4">
           {filteredEntries.map((entry) => (
-            <Card key={entry.id} className="hover:shadow-md transition-shadow">
+            <Card key={entry.id} className="hover:shadow-md transition-shadow border-gray-200">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

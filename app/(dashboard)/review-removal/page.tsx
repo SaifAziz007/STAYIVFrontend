@@ -135,15 +135,15 @@ export default function ReviewRemovalPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Review/Removal</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Review/Removal</h1>
           <p className="text-gray-600 mt-1">
             Manage reservations flagged for review or removal
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3 px-4 py-2 bg-orange-50 rounded-lg border border-orange-200">
           <AlertTriangle className="h-5 w-5 text-orange-600" />
           <span className="text-2xl font-bold text-gray-900">{filteredReviewRemovals.length}</span>
-          <span className="text-gray-600">
+          <span className="text-gray-600 text-sm font-medium">
             {statusFilter === 'all' ? 'Total Entries' : `${statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)} Entries`}
           </span>
         </div>
@@ -243,9 +243,11 @@ export default function ReviewRemovalPage() {
       )}
 
       {filteredReviewRemovals.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <AlertTriangle className="h-16 w-16 text-gray-400 mb-4" />
+        <Card className="border-gray-200">
+          <CardContent className="flex flex-col items-center justify-center py-20">
+            <div className="p-4 bg-gradient-to-br from-orange-100 to-amber-100 rounded-2xl mb-6">
+              <AlertTriangle className="h-16 w-16 text-orange-600" />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {statusFilter === 'all' ? 'No review/removal entries yet' : `No ${statusFilter} entries`}
             </h2>
@@ -260,7 +262,7 @@ export default function ReviewRemovalPage() {
       ) : (
         <div className="space-y-4">
           {filteredReviewRemovals.map((item) => (
-            <Card key={item.id} className="hover:shadow-md transition-shadow">
+            <Card key={item.id} className="hover:shadow-md transition-shadow border-gray-200">
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
