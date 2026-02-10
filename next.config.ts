@@ -4,7 +4,12 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  // Remove 'output: export' to allow dynamic rendering for Vercel deployment
+  // Ensure CSS is properly handled in production
+  experimental: {
+    optimizeCss: false, // Disable if causing issues
+  },
+  // Ensure proper transpilation
+  transpilePackages: [],
 };
 
 export default nextConfig;
