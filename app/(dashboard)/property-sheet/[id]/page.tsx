@@ -10,8 +10,16 @@ import PropertyIdentityForm from '@/components/property-sheet/PropertyIdentityFo
 import { AccessSecurityForm } from '@/components/property-sheet/AccessSecurityForm';
 import { ConnectivityForm } from '@/components/property-sheet/ConnectivityForm';
 import { AmenitiesForm } from '@/components/property-sheet/AmenitiesForm';
+import { DetailedAmenitiesForm } from '@/components/property-sheet/DetailedAmenitiesForm';
+import { RulesForm } from '@/components/property-sheet/RulesForm';
+import { LocalAreaForm } from '@/components/property-sheet/LocalAreaForm';
+import { OperationsForm } from '@/components/property-sheet/OperationsForm';
+import { FAQsForm } from '@/components/property-sheet/FAQsForm';
 import ProgressTracker from '@/components/property-sheet/ProgressTracker';
-import { ArrowLeft, Home, Key, Wifi, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft, Home, Key, Wifi, Sparkles,
+  WashingMachine, ScrollText, MapPin, Settings, HelpCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 
 export default function PropertySheetPage() {
@@ -44,9 +52,10 @@ export default function PropertySheetPage() {
   };
 
   const handleSave = async () => {
-    // Reload completion data
     const completionData = await propertySheetsApi.getCompletion(propertyId);
     setCompletion(completionData);
+    const propertyData = await propertiesApi.getOne(propertyId);
+    setProperty(propertyData);
   };
 
   if (loading) {
@@ -68,6 +77,18 @@ export default function PropertySheetPage() {
     );
   }
 
+  const tabs = [
+    { value: 'identity', label: 'Identity', icon: Home, module: 1 },
+    { value: 'access', label: 'Access', icon: Key, module: 2 },
+    { value: 'connectivity', label: 'WiFi', icon: Wifi, module: 3 },
+    { value: 'amenities', label: 'Amenities', icon: Sparkles, module: 4 },
+    { value: 'detailed-amenities', label: 'Detailed', icon: WashingMachine, module: 5 },
+    { value: 'rules', label: 'Rules', icon: ScrollText, module: 6 },
+    { value: 'local-area', label: 'Local Area', icon: MapPin, module: 7 },
+    { value: 'operations', label: 'Operations', icon: Settings, module: 8 },
+    { value: 'faqs', label: 'FAQs', icon: HelpCircle, module: 9 },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
@@ -82,7 +103,7 @@ export default function PropertySheetPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Property Sheet</h1>
         <p className="text-gray-600 mt-1">
-          Complete the property information to train your AI assistant
+          Complete all 9 modules to fully train your AI assistant
         </p>
       </div>
 
@@ -93,23 +114,21 @@ export default function PropertySheetPage() {
       )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 mb-8">
-          <TabsTrigger value="identity" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            <span className="hidden sm:inline">Module 1:</span> Identity
-          </TabsTrigger>
-          <TabsTrigger value="access" className="flex items-center gap-2">
-            <Key className="h-4 w-4" />
-            <span className="hidden sm:inline">Module 2:</span> Access
-          </TabsTrigger>
-          <TabsTrigger value="connectivity" className="flex items-center gap-2">
-            <Wifi className="h-4 w-4" />
-            <span className="hidden sm:inline">Module 3:</span> WiFi
-          </TabsTrigger>
-          <TabsTrigger value="amenities" className="flex items-center gap-2">
-            <Sparkles className="h-4 w-4" />
-            <span className="hidden sm:inline">Module 4:</span> Amenities
-          </TabsTrigger>
+        <TabsList className="flex flex-wrap h-auto gap-1 mb-8 p-1">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm"
+              >
+                <Icon className="h-4 w-4" />
+                <span className="hidden md:inline">M{tab.module}:</span>
+                {tab.label}
+              </TabsTrigger>
+            );
+          })}
         </TabsList>
 
         <TabsContent value="identity">
@@ -180,8 +199,97 @@ export default function PropertySheetPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="detailed-amenities">
+          <Card>
+            <CardHeader>
+              <CardTitle>Module 5: Detailed Amenities</CardTitle>
+              <CardDescription>
+                Laundry, heating system, hot water, breaker box, outdoor space, and bed configuration
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DetailedAmenitiesForm
+                propertyId={propertyId}
+                initialData={property.propertySheet}
+                onSave={handleSave}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="rules">
+          <Card>
+            <CardHeader>
+              <CardTitle>Module 6: House Rules</CardTitle>
+              <CardDescription>
+                Noise, smoking, pets, parties, checkout checklist, and general rules
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RulesForm
+                propertyId={propertyId}
+                initialData={property.propertySheet}
+                onSave={handleSave}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="local-area">
+          <Card>
+            <CardHeader>
+              <CardTitle>Module 7: Local Area</CardTitle>
+              <CardDescription>
+                Parking options, transit, grocery stores, restaurants, and walkability
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <LocalAreaForm
+                propertyId={propertyId}
+                initialData={property.propertySheet}
+                onSave={handleSave}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="operations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Module 8: Operations</CardTitle>
+              <CardDescription>
+                Check-in/out policies, cancellation, support flow, incident protocols, and discounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <OperationsForm
+                propertyId={propertyId}
+                initialData={property.propertySheet}
+                onSave={handleSave}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="faqs">
+          <Card>
+            <CardHeader>
+              <CardTitle>Module 9: FAQs & Knowledge Base</CardTitle>
+              <CardDescription>
+                Frequently asked questions, troubleshooting playbooks, and pre-check-in checklist
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FAQsForm
+                propertyId={propertyId}
+                initialData={property.propertySheet}
+                onSave={handleSave}
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
 }
-

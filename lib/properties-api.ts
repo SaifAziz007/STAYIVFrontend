@@ -12,7 +12,23 @@ export interface PropertySheet {
   id: string;
   propertyId: string;
   identityData?: any;
+  accessData?: any;
+  connectivityData?: any;
+  amenitiesData?: any;
+  detailedAmenitiesData?: any;
+  rulesData?: any;
+  localAreaData?: any;
+  operationsData?: any;
+  faqsData?: any;
   identityCompletion: number;
+  accessCompletion: number;
+  connectivityCompletion: number;
+  amenitiesCompletion: number;
+  detailedAmenitiesCompletion: number;
+  rulesCompletion: number;
+  localAreaCompletion: number;
+  operationsCompletion: number;
+  faqsCompletion: number;
   overallCompletion: number;
   aiTrainingStatus: string;
   validationStatus: string;
@@ -93,10 +109,29 @@ export const propertySheetsApi = {
   },
 };
 
+export const aiApi = {
+  async indexProperty(propertyId: string) {
+    const response = await apiClient.post(`/ai/properties/${propertyId}/index`);
+    return response.data;
+  },
 
+  async queryProperty(propertyId: string, question: string) {
+    const response = await apiClient.post(`/ai/properties/${propertyId}/query`, { question });
+    return response.data;
+  },
 
+  async analyzeConversations() {
+    const response = await apiClient.get('/ai/analyze-conversations');
+    return response.data;
+  },
 
+  async seedFaqs(propertyId: string) {
+    const response = await apiClient.post(`/ai/properties/${propertyId}/seed-faqs`);
+    return response.data;
+  },
 
-
-
-
+  async generateFaqAnswers(propertyId: string, questions: string[]) {
+    const response = await apiClient.post(`/ai/properties/${propertyId}/generate-faq-answers`, { questions });
+    return response.data;
+  },
+};

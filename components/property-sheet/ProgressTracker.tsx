@@ -9,6 +9,11 @@ interface ProgressTrackerProps {
     accessCompletion: number;
     connectivityCompletion: number;
     amenitiesCompletion: number;
+    detailedAmenitiesCompletion: number;
+    rulesCompletion: number;
+    localAreaCompletion: number;
+    operationsCompletion: number;
+    faqsCompletion: number;
     overallCompletion: number;
     aiTrainingStatus: string;
     validationStatus: string;
@@ -21,7 +26,14 @@ export default function ProgressTracker({ completion }: ProgressTrackerProps) {
     { name: 'Access & Security', completion: completion.accessCompletion },
     { name: 'Connectivity', completion: completion.connectivityCompletion },
     { name: 'Basic Amenities', completion: completion.amenitiesCompletion },
+    { name: 'Detailed Amenities', completion: completion.detailedAmenitiesCompletion },
+    { name: 'House Rules', completion: completion.rulesCompletion },
+    { name: 'Local Area', completion: completion.localAreaCompletion },
+    { name: 'Operations', completion: completion.operationsCompletion },
+    { name: 'FAQs & Knowledge', completion: completion.faqsCompletion },
   ];
+
+  const filledModules = modules.filter(m => m.completion > 0).length;
 
   return (
     <Card>
@@ -31,9 +43,12 @@ export default function ProgressTracker({ completion }: ProgressTrackerProps) {
           <div>
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-lg font-semibold">Overall Progress</h3>
-              <span className="text-2xl font-bold text-blue-600">
-                {completion.overallCompletion}%
-              </span>
+              <div className="text-right">
+                <span className="text-2xl font-bold text-blue-600">
+                  {completion.overallCompletion}%
+                </span>
+                <p className="text-xs text-gray-500">{filledModules}/9 modules</p>
+              </div>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
@@ -66,14 +81,14 @@ export default function ProgressTracker({ completion }: ProgressTrackerProps) {
             <h4 className="text-sm font-semibold text-gray-700 mb-3">
               Module Completion
             </h4>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {modules.map((module) => (
                 <div
                   key={module.name}
                   className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg"
                 >
                   {module.completion > 0 ? (
-                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <CheckCircle2 className={`h-5 w-5 flex-shrink-0 ${module.completion >= 80 ? 'text-green-600' : module.completion >= 40 ? 'text-yellow-500' : 'text-gray-400'}`} />
                   ) : (
                     <Circle className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   )}
@@ -92,11 +107,3 @@ export default function ProgressTracker({ completion }: ProgressTrackerProps) {
     </Card>
   );
 }
-
-
-
-
-
-
-
-
