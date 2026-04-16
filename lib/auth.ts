@@ -1,10 +1,14 @@
 import apiClient from './api-client';
+import type { AppScreenKey } from './route-permissions';
 
 export interface User {
   id: string;
   email: string;
   name: string;
   role: string;
+  adminId: string | null;
+  isActive: boolean;
+  permissions: Record<string, boolean>;
 }
 
 export interface AuthResponse {
@@ -23,6 +27,12 @@ export interface RegisterData {
   name: string;
 }
 
+export function canViewScreen(user: User | null, screen: AppScreenKey): boolean {
+  if (!user) return false;
+  if (user.role === 'ADMIN') return true;
+  return user.permissions?.[screen] === true;
+}
+
 export const authApi = {
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await apiClient.post('/auth/register', data);
@@ -34,6 +44,11 @@ export const authApi = {
     return response.data;
   },
 
+  async me(): Promise<{ user: User }> {
+    const response = await apiClient.get('/auth/me');
+    return response.data;
+  },
+
   saveAuth(authResponse: AuthResponse) {
     if (typeof window !== 'undefined') {
       localStorage.setItem('access_token', authResponse.access_token);
@@ -41,13 +56,23 @@ export const authApi = {
     }
   },
 
+  updateStoredUser(user: User) {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+  },
+
   getUser(): User | null {
     if (typeof window === 'undefined') return null;
-    
+
     const userStr = localStorage.getItem('user');
     if (!userStr) return null;
     try {
-      return JSON.parse(userStr);
+      const u = JSON.parse(userStr) as User;
+      if (!u.permissions || typeof u.permissions !== 'object') {
+        u.permissions = {};
+      }
+      return u;
     } catch {
       return null;
     }
@@ -66,4 +91,3 @@ export const authApi = {
     }
   },
 };
-

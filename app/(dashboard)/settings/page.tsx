@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Check, X, RefreshCw, Link2, Unlink } from 'lucide-react';
 import apiClient from '@/lib/api-client';
+import { authApi } from '@/lib/auth';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -120,6 +122,16 @@ export default function HospitableSettingsPage() {
         <p className="text-gray-600">
           Connect your Hospitable account to automatically sync your properties
         </p>
+        {authApi.getUser()?.role === 'ADMIN' && (
+          <p className="mt-3">
+            <Link
+              href="/settings/team"
+              className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
+            >
+              Manage team members →
+            </Link>
+          </p>
+        )}
       </div>
 
       {/* Error Message */}

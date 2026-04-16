@@ -20,10 +20,13 @@ import { formCollectionApi } from '@/lib/form-collection-api';
 import IssuesModal from '@/components/issues-modal';
 import PendingPaymentModal from '@/components/pending-payment-modal';
 import FormCollectionModal from '@/components/form-collection-modal';
+import { authApi, canViewScreen, type User } from '@/lib/auth';
+import { CHAT_ACTION_TO_SCREEN } from '@/lib/chat-action-permissions';
 
 
 export default function AllChatsPage() {
   const router = useRouter();
+  const [viewer, setViewer] = useState<User | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -184,6 +187,10 @@ export default function AllChatsPage() {
     loadConversations();
   }, []);
 
+  useEffect(() => {
+    setViewer(authApi.getUser());
+  }, []);
+
   const loadConversations = async () => {
     try {
       setLoading(true);
@@ -283,11 +290,13 @@ export default function AllChatsPage() {
     actionType,
     conversation,
     isActioned,
+    canUseAction,
     onActionClick
   }: {
     actionType: 'claim' | 'review' | 'lost-found' | 'issues' | 'payment' | 'form';
     conversation: Conversation;
     isActioned: boolean;
+    canUseAction: boolean;
     onActionClick: (actionType: 'claim' | 'review' | 'lost-found' | 'issues' | 'payment' | 'form', conversation: ReservationConversation) => void;
   }) => {
     const config = {
@@ -336,16 +345,19 @@ export default function AllChatsPage() {
     };
 
     const { icon: Icon, activeText, actionedText, activeClass, actionedClass } = config[actionType];
+    const greyed = isActioned || !canUseAction;
+    const noPermission = !canUseAction && !isActioned;
 
     return (
       <Button
         size="sm"
-        variant={isActioned ? "secondary" : "outline"}
-        className={isActioned ? actionedClass : activeClass}
-        disabled={isActioned}
+        variant={greyed ? "secondary" : "outline"}
+        className={greyed ? actionedClass : activeClass}
+        disabled={greyed}
+        title={noPermission ? 'You do not have permission for this action' : undefined}
         onClick={(e) => {
           e.stopPropagation();
-          if (!isActioned) {
+          if (!greyed) {
             onActionClick(actionType, conversation as ReservationConversation);
           }
         }}
@@ -620,36 +632,42 @@ export default function AllChatsPage() {
                 actionType="claim"
                 conversation={conversation}
                 isActioned={isConversationClaimed(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN.claim)}
                 onActionClick={handleActionClick}
               />
               <ActionButton
                 actionType="review"
                 conversation={conversation}
                 isActioned={isConversationInReview(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN.review)}
                 onActionClick={handleActionClick}
               />
               <ActionButton
                 actionType="lost-found"
                 conversation={conversation}
                 isActioned={isConversationInLostFound(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN['lost-found'])}
                 onActionClick={handleActionClick}
               />
               <ActionButton
                 actionType="issues"
                 conversation={conversation}
                 isActioned={isConversationInIssues(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN.issues)}
                 onActionClick={handleActionClick}
               />
               <ActionButton
                 actionType="payment"
                 conversation={conversation}
                 isActioned={isConversationInPayments(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN.payment)}
                 onActionClick={handleActionClick}
               />
               <ActionButton
                 actionType="form"
                 conversation={conversation}
                 isActioned={isConversationInForms(conversation)}
+                canUseAction={canViewScreen(viewer, CHAT_ACTION_TO_SCREEN.form)}
                 onActionClick={handleActionClick}
               />
             </div>

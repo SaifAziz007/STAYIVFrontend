@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/lib/auth';
+import { AxiosError } from 'axios';
 import { loginSchema, LoginFormData } from '@/lib/validations/auth.schema';
 
 export default function LoginPage() {
@@ -31,9 +32,21 @@ export default function LoginPage() {
       setError('');
       const response = await authApi.login(data);
       authApi.saveAuth(response);
-      router.push('/properties');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      const ax = err as AxiosError<{ message?: string | string[] }>;
+      const status = ax.response?.status;
+      const msg = ax.response?.data?.message;
+      const messageStr = Array.isArray(msg) ? msg[0] : msg;
+      if (status === 403) {
+        setError(
+          typeof messageStr === 'string'
+            ? messageStr
+            : 'Your account has been deactivated. Contact your administrator.',
+        );
+      } else {
+        setError(messageStr || 'Login failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

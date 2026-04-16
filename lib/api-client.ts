@@ -28,13 +28,13 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Redirect to login if unauthorized
       if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token');
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
     }
+    // 403: authenticated but not allowed — do not log out; caller shows message
     return Promise.reject(error);
   }
 );
