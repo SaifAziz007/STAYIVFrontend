@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { authApi } from '@/lib/auth';
+import { AxiosError } from 'axios';
 import { registerSchema, RegisterFormData } from '@/lib/validations/auth.schema';
 
 export default function RegisterPage() {
@@ -31,9 +32,20 @@ export default function RegisterPage() {
       setError('');
       const response = await authApi.register(data);
       authApi.saveAuth(response);
-      router.push('/properties');
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      router.push('/dashboard');
+    } catch (err: unknown) {
+      const ax = err as AxiosError<{ message?: string | string[] }>;
+      const msg = ax.response?.data?.message;
+      const messageStr = Array.isArray(msg) ? msg[0] : msg;
+      if (ax.response?.status === 403) {
+        setError(
+          typeof messageStr === 'string'
+            ? messageStr
+            : 'Registration is closed. Please contact your administrator.',
+        );
+      } else {
+        setError(messageStr || 'Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
