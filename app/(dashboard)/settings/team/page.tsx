@@ -40,6 +40,8 @@ const STANDALONE_SCREENS: ScreenRow[] = [
   { key: 'PROPERTY_SHEETS', label: 'Property sheets' },
   { key: 'CONVERSATIONS', label: 'Chats / conversations' },
   { key: 'CLEANING', label: 'Cleaning' },
+  { key: 'RESERVATIONS', label: 'Reservations' },
+  { key: 'INQUIRIES', label: 'Inquiries' },
   { key: 'REVIEWS', label: 'Reviews' },
   { key: 'AI_KNOWLEDGE_BASE', label: 'AI chat / knowledge base' },
   { key: 'HOSPITABLE_INTEGRATION', label: 'Settings (Hospitable)' },

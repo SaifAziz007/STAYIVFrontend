@@ -11,6 +11,8 @@ export type AppScreenKey =
   | 'ISSUES'
   | 'PENDING_PAYMENTS'
   | 'FORM_COLLECTION'
+  | 'RESERVATIONS'
+  | 'INQUIRIES'
   | 'REVIEWS'
   | 'AI_KNOWLEDGE_BASE'
   | 'HOSPITABLE_INTEGRATION'
@@ -52,6 +54,12 @@ export function getRequiredScreenForPath(pathname: string): AppScreenKey | null 
   }
   if (pathname.startsWith('/form-collection')) {
     return 'FORM_COLLECTION';
+  }
+  if (pathname.startsWith('/reservations')) {
+    return 'RESERVATIONS';
+  }
+  if (pathname.startsWith('/inquiries')) {
+    return 'INQUIRIES';
   }
   if (pathname.startsWith('/reviews')) {
     return 'REVIEWS';
