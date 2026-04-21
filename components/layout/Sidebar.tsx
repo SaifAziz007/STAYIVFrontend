@@ -18,6 +18,8 @@ import {
   DollarSign,
   Upload,
   Users,
+  CalendarDays,
+  Inbox,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authApi, canViewScreen, type User } from '@/lib/auth';
@@ -35,6 +37,8 @@ const menuItems: MenuItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, screen: 'DASHBOARD' },
   { name: 'Properties', href: '/properties', icon: Building2, screen: 'PROPERTIES' },
   { name: 'Reviews', href: '/reviews', icon: Star, screen: 'REVIEWS' },
+  { name: 'Reservations', href: '/reservations', icon: CalendarDays, screen: 'RESERVATIONS' },
+  { name: 'Inquiries', href: '/inquiries', icon: Inbox, screen: 'INQUIRIES' },
   { name: 'Chats', href: '/chats/all', icon: MessageCircle, screen: 'CONVERSATIONS' },
   { name: 'Cleaning', href: '/cleaning', icon: Sparkles, screen: 'CLEANING' },
   { name: 'Claimed Chats', href: '/claimed-chats', icon: Flag, screen: 'CLAIMED_CHATS' },
