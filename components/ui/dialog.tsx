@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DialogProps {
@@ -17,7 +16,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop - Modern subtle overlay */}
       <div
-        className="fixed inset-0 bg-gray-900/20 backdrop-blur-[2px] transition-opacity"
+        className="fixed inset-0 bg-gray-900/20 dark:bg-black/55 backdrop-blur-[2px] transition-opacity"
         onClick={() => onOpenChange(false)}
       />
       
@@ -37,7 +36,7 @@ export function DialogContent({
   return (
     <div
       className={cn(
-        'bg-white rounded-2xl shadow-2xl border border-gray-200 p-6 max-h-[90vh] overflow-y-auto',
+        'bg-white dark:bg-card rounded-2xl shadow-2xl border border-gray-200 dark:border-border p-6 max-h-[90vh] overflow-y-auto',
         className
       )}
     >
@@ -63,7 +62,7 @@ export function DialogTitle({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <h2 className={cn('text-xl font-bold text-gray-900', className)}>{children}</h2>;
+  return <h2 className={cn('text-xl font-bold text-gray-900 dark:text-foreground', className)}>{children}</h2>;
 }
 
 export function DialogDescription({
@@ -74,7 +73,7 @@ export function DialogDescription({
   className?: string;
 }) {
   return (
-    <p className={cn('text-sm text-gray-600 mt-2', className)}>{children}</p>
+    <p className={cn('text-sm text-gray-600 dark:text-muted-foreground mt-2', className)}>{children}</p>
   );
 }
 

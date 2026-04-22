@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Sparkles,
@@ -16,6 +16,7 @@ import {
 import { authApi, canViewScreen, type User } from '@/lib/auth';
 import type { AppScreenKey } from '@/lib/route-permissions';
 import { cn } from '@/lib/utils';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 type ModuleTile = {
   title: string;
@@ -35,9 +36,9 @@ const MODULES: ModuleTile[] = [
     href: '/reservations',
     screen: 'RESERVATIONS',
     icon: CalendarDays,
-    iconBg: 'bg-amber-50',
-    iconColor: 'text-amber-600',
-    cardBorder: 'border-amber-100/90',
+    iconBg: 'bg-amber-50 dark:bg-amber-950/45',
+    iconColor: 'text-amber-600 dark:text-amber-400',
+    cardBorder: 'border-amber-100/90 dark:border-amber-900/45',
   },
   {
     title: 'Inquiries',
@@ -45,9 +46,9 @@ const MODULES: ModuleTile[] = [
     href: '/inquiries',
     screen: 'INQUIRIES',
     icon: Inbox,
-    iconBg: 'bg-slate-50',
-    iconColor: 'text-slate-600',
-    cardBorder: 'border-slate-100/90',
+    iconBg: 'bg-slate-50 dark:bg-neutral-900/55',
+    iconColor: 'text-slate-600 dark:text-neutral-300',
+    cardBorder: 'border-slate-100/90 dark:border-neutral-800/60',
   },
   {
     title: 'Cleaning',
@@ -55,9 +56,9 @@ const MODULES: ModuleTile[] = [
     href: '/cleaning',
     screen: 'CLEANING',
     icon: Sparkles,
-    iconBg: 'bg-emerald-50',
-    iconColor: 'text-emerald-600',
-    cardBorder: 'border-emerald-100/90',
+    iconBg: 'bg-emerald-50 dark:bg-emerald-950/45',
+    iconColor: 'text-emerald-600 dark:text-emerald-400',
+    cardBorder: 'border-emerald-100/90 dark:border-emerald-900/45',
   },
   {
     title: 'Claimed Chats',
@@ -65,9 +66,9 @@ const MODULES: ModuleTile[] = [
     href: '/claimed-chats',
     screen: 'CLAIMED_CHATS',
     icon: Flag,
-    iconBg: 'bg-sky-50',
-    iconColor: 'text-sky-600',
-    cardBorder: 'border-sky-100/90',
+    iconBg: 'bg-sky-50 dark:bg-sky-950/45',
+    iconColor: 'text-sky-600 dark:text-sky-400',
+    cardBorder: 'border-sky-100/90 dark:border-sky-900/45',
   },
   {
     title: 'Review / Removal',
@@ -75,9 +76,9 @@ const MODULES: ModuleTile[] = [
     href: '/review-removal',
     screen: 'REVIEW_REMOVAL',
     icon: ShieldAlert,
-    iconBg: 'bg-orange-50',
-    iconColor: 'text-orange-600',
-    cardBorder: 'border-orange-100/90',
+    iconBg: 'bg-orange-50 dark:bg-orange-950/45',
+    iconColor: 'text-orange-600 dark:text-orange-400',
+    cardBorder: 'border-orange-100/90 dark:border-orange-900/45',
   },
   {
     title: 'Lost & Found',
@@ -85,9 +86,9 @@ const MODULES: ModuleTile[] = [
     href: '/lost-found',
     screen: 'LOST_FOUND',
     icon: PackageSearch,
-    iconBg: 'bg-violet-50',
-    iconColor: 'text-violet-600',
-    cardBorder: 'border-violet-100/90',
+    iconBg: 'bg-violet-50 dark:bg-violet-950/45',
+    iconColor: 'text-violet-600 dark:text-violet-400',
+    cardBorder: 'border-violet-100/90 dark:border-violet-900/45',
   },
   {
     title: 'Open Issues',
@@ -95,9 +96,9 @@ const MODULES: ModuleTile[] = [
     href: '/issues',
     screen: 'ISSUES',
     icon: CircleAlert,
-    iconBg: 'bg-rose-50',
-    iconColor: 'text-rose-600',
-    cardBorder: 'border-rose-100/90',
+    iconBg: 'bg-rose-50 dark:bg-rose-950/45',
+    iconColor: 'text-rose-600 dark:text-rose-400',
+    cardBorder: 'border-rose-100/90 dark:border-rose-900/45',
   },
   {
     title: 'Pending Payments',
@@ -105,9 +106,9 @@ const MODULES: ModuleTile[] = [
     href: '/pending-payments',
     screen: 'PENDING_PAYMENTS',
     icon: CreditCard,
-    iconBg: 'bg-indigo-50',
-    iconColor: 'text-indigo-600',
-    cardBorder: 'border-indigo-100/90',
+    iconBg: 'bg-indigo-50 dark:bg-indigo-950/45',
+    iconColor: 'text-indigo-600 dark:text-indigo-400',
+    cardBorder: 'border-indigo-100/90 dark:border-indigo-900/45',
   },
   {
     title: 'Form Collection',
@@ -115,9 +116,9 @@ const MODULES: ModuleTile[] = [
     href: '/form-collection',
     screen: 'FORM_COLLECTION',
     icon: ClipboardList,
-    iconBg: 'bg-cyan-50',
-    iconColor: 'text-cyan-600',
-    cardBorder: 'border-cyan-100/90',
+    iconBg: 'bg-cyan-50 dark:bg-cyan-950/45',
+    iconColor: 'text-cyan-600 dark:text-cyan-400',
+    cardBorder: 'border-cyan-100/90 dark:border-cyan-900/45',
   },
 ];
 
@@ -130,30 +131,19 @@ export default function DashboardPage() {
     setUser(authApi.getUser());
   }, []);
 
-  const visibleCount = MODULES.filter(
-    (m) => !mounted || !user || canViewScreen(user, m.screen),
-  ).length;
+  const welcomeTitle = useMemo(() => {
+    if (!mounted) return 'Dashboard';
+    return user?.name ? `Welcome back, ${user.name}` : 'Welcome back';
+  }, [mounted, user?.name]);
+
+  usePageHeader({
+    title: welcomeTitle,
+    description: 'Manage More. Stress Less.',
+  });
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10 pb-12">
-      <div className="text-center pt-6 sm:pt-10">
-        <div className="inline-flex items-center gap-2 rounded-full border border-blue-200/90 bg-white px-4 py-1.5 text-medium font-medium text-slate-600 shadow-sm mb-6">
-          <span aria-hidden>✨</span>
-          Manage More. Stress Less.
-        </div>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 mb-3">
-          Welcome back
-          {user?.name ? (
-            <>
-              {', '}
-              <span className="text-blue-600">{user.name}</span>
-            </>
-          ) : null}
-        </h1>
-     
-      </div>
-
-      <section aria-labelledby="dashboard-modules-heading">
+      <section aria-labelledby="dashboard-modules-heading" className="pt-2 sm:pt-4">
        
         <div
           className={cn(
@@ -174,8 +164,8 @@ export default function DashboardPage() {
                 >
                   <mod.icon className={cn('h-7 w-7', mod.iconColor)} strokeWidth={1.75} />
                 </div>
-                <h3 className="text-base font-semibold text-slate-900 mb-1.5">{mod.title}</h3>
-                <p className="text-sm text-slate-500 leading-snug line-clamp-2">{mod.description}</p>
+                <h3 className="text-base font-semibold text-slate-900 dark:text-foreground mb-1.5">{mod.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-muted-foreground leading-snug line-clamp-2">{mod.description}</p>
               </>
             );
 
@@ -184,7 +174,7 @@ export default function DashboardPage() {
                 <div
                   key={mod.href}
                   className={cn(
-                    'relative flex flex-col rounded-2xl border bg-slate-50 p-6 opacity-60 cursor-not-allowed',
+                    'relative flex flex-col rounded-2xl border bg-slate-50 dark:bg-card/50 p-6 opacity-60 cursor-not-allowed dark:border-border',
                     mod.cardBorder,
                   )}
                   title="You don’t have access to this module"
@@ -199,11 +189,12 @@ export default function DashboardPage() {
                 key={mod.href}
                 href={mod.href}
                 className={cn(
-                  'group relative flex flex-col rounded-2xl border bg-white p-6',
-                  'shadow-sm shadow-slate-200/80',
+                  'group relative flex flex-col rounded-2xl border bg-white dark:bg-card p-6',
+                  'shadow-sm shadow-slate-200/80 dark:shadow-black/40',
                   'transition-all duration-200 ease-out',
-                  'hover:shadow-lg hover:shadow-slate-300/50 hover:-translate-y-0.5',
-                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
+                  'hover:shadow-lg hover:shadow-gray-300/50 dark:hover:shadow-black/50 dark:hover:bg-muted/25',
+                  'hover:-translate-y-0.5',
+                  'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 dark:focus-visible:outline-blue-400',
                   'active:scale-[0.99]',
                   mod.cardBorder,
                 )}

@@ -104,7 +104,9 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
         <Card className="border-dashed border-blue-300 bg-blue-50/50">
           <CardContent className="pt-6 text-center">
             <Sparkles className="h-10 w-10 text-blue-500 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Auto-Generate FAQs</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-2">
+              Auto-Generate FAQs
+            </h3>
             <p className="text-sm text-gray-600 mb-4">
               Automatically generate FAQs, troubleshooting playbooks, and pre-check-in checklists
               based on your existing property data.
@@ -131,11 +133,11 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
           {faqFields.map((field, index) => (
             <div key={field.id} className="border rounded-lg overflow-hidden">
               <div
-                className="flex items-center justify-between p-3 bg-gray-50 cursor-pointer hover:bg-gray-100"
+                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-muted cursor-pointer hover:bg-gray-100 dark:hover:bg-muted/80 border border-transparent dark:border-border/60 rounded-lg"
                 onClick={() => setExpandedFaq(expandedFaq === index ? null : index)}
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900 truncate">
+                  <p className="text-sm font-medium text-gray-900 dark:text-foreground truncate">
                     {watch(`faqs.${index}.question`) || `FAQ ${index + 1}`}
                   </p>
                   <p className="text-xs text-gray-500">
@@ -234,7 +236,7 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
                   onClick={() => setExpandedPlaybook(expandedPlaybook === index ? null : index)}
                 >
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-foreground">
                       {watch(`troubleshootingPlaybooks.${index}.title`) || `Playbook ${index + 1}`}
                     </p>
                   </div>
@@ -243,7 +245,7 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
                 {expandedPlaybook === index && (
                   <div className="p-4 space-y-3 text-sm">
                     <div>
-                      <p className="font-semibold text-gray-700 mb-1">Guest Steps:</p>
+                      <p className="font-semibold text-gray-700 dark:text-foreground mb-1">Guest Steps:</p>
                       <ol className="list-decimal list-inside space-y-1 text-gray-600">
                         {(watch(`troubleshootingPlaybooks.${index}.guestSteps`) || []).map((step: string, i: number) => (
                           <li key={i}>{step}</li>
@@ -251,12 +253,14 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
                       </ol>
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-700 mb-1">Escalation Trigger:</p>
+                      <p className="font-semibold text-gray-700 dark:text-foreground mb-1">
+                        Escalation Trigger:
+                      </p>
                       <p className="text-gray-600">{watch(`troubleshootingPlaybooks.${index}.escalationTrigger`)}</p>
                     </div>
                     {watch(`troubleshootingPlaybooks.${index}.vendorSLA`) && (
                       <div>
-                        <p className="font-semibold text-gray-700 mb-1">Vendor SLA:</p>
+                        <p className="font-semibold text-gray-700 dark:text-foreground mb-1">Vendor SLA:</p>
                         <p className="text-gray-600">{watch(`troubleshootingPlaybooks.${index}.vendorSLA`)}</p>
                       </div>
                     )}
@@ -281,7 +285,10 @@ export function FAQsForm({ propertyId, initialData, onSave }: FAQsFormProps) {
         </CardHeader>
         <CardContent className="space-y-3">
           {checklistFields.map((field, index) => (
-            <div key={field.id} className="flex items-start gap-2 p-3 bg-gray-50 rounded-lg">
+            <div
+              key={field.id}
+              className="flex items-start gap-2 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60"
+            >
               <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-2">
                 <Input {...register(`preCheckinChecklist.${index}.item`)} placeholder="Checklist item" className="md:col-span-2" />
                 <Select

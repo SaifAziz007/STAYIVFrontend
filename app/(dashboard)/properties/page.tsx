@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { propertiesApi, Property } from '@/lib/properties-api';
 import { PlusCircle, Home, Trash2 } from 'lucide-react';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 export default function PropertiesPage() {
   const router = useRouter();
@@ -52,6 +53,24 @@ export default function PropertiesPage() {
     }
   };
 
+  const createPropertyRef = useRef(handleCreateProperty);
+  createPropertyRef.current = handleCreateProperty;
+  const propertiesHeaderActions = useMemo(
+    () => (
+      <Button onClick={() => void createPropertyRef.current()} disabled={creating} className="gap-2 shadow-sm">
+        <PlusCircle className="h-4 w-4" />
+        {creating ? 'Creating...' : 'Add Property'}
+      </Button>
+    ),
+    [creating],
+  );
+
+  usePageHeader({
+    title: 'My Properties',
+    description: 'Manage your vacation rental properties',
+    actions: propertiesHeaderActions,
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -62,29 +81,16 @@ export default function PropertiesPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Properties</h1>
-          <p className="text-gray-600 mt-1">
-            Manage your vacation rental properties
-          </p>
-        </div>
-        <Button onClick={handleCreateProperty} disabled={creating} className="gap-2 shadow-sm">
-          <PlusCircle className="h-4 w-4" />
-          {creating ? 'Creating...' : 'Add Property'}
-        </Button>
-      </div>
-
       {properties.length === 0 ? (
         <Card className="border-gray-200">
           <CardContent className="flex flex-col items-center justify-center py-20">
             <div className="p-4 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl mb-6">
               <Home className="h-16 w-16 text-blue-600" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-foreground mb-2">
               No properties yet
             </h2>
-            <p className="text-gray-600 mb-6 text-center max-w-md">
+            <p className="text-gray-600 dark:text-neutral-400 mb-6 text-center max-w-md">
               Get started by adding your first property. You&apos;ll be able to fill in
               details and train the AI to handle guest communication.
             </p>
@@ -100,7 +106,7 @@ export default function PropertiesPage() {
             <Card key={property.id} className="hover:shadow-lg transition-all duration-200 border-gray-200 group">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                  <span className="text-lg font-semibold text-gray-900 dark:text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                     {property.propertySheet?.identityData?.propertyName || 'Unnamed Property'}
                   </span>
                   <Button
@@ -120,12 +126,12 @@ export default function PropertiesPage() {
                 <div className="space-y-4">
                   <div>
                     <div className="flex items-center justify-between text-sm mb-2">
-                      <span className="text-gray-600 font-medium">Overall Completion</span>
-                      <span className="font-semibold text-gray-900">
+                      <span className="text-gray-600 dark:text-neutral-400 font-medium">Overall Completion</span>
+                      <span className="font-semibold text-gray-900 dark:text-foreground">
                         {property.propertySheet?.overallCompletion || 0}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                    <div className="w-full bg-gray-100 dark:bg-muted rounded-full h-2.5 overflow-hidden">
                       <div
                         className="bg-gradient-to-r from-blue-500 to-indigo-600 h-2.5 rounded-full transition-all duration-500 shadow-sm"
                         style={{
@@ -135,9 +141,9 @@ export default function PropertiesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                    <span className="text-xs text-gray-600 font-medium">AI Status</span>
-                    <span className="text-xs font-semibold text-gray-900">
+                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-muted rounded-lg border border-gray-200 dark:border-border">
+                    <span className="text-xs text-gray-600 dark:text-neutral-400 font-medium">AI Status</span>
+                    <span className="text-xs font-semibold text-gray-900 dark:text-foreground">
                       {property.propertySheet?.aiTrainingStatus || 'Not Started'}
                     </span>
                   </div>

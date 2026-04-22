@@ -18,6 +18,7 @@ import {
   type ReservationsListParams,
 } from '@/lib/reservations-api';
 import { useToast } from '@/hooks/use-toast';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 export default function ReservationsPage() {
   const { toast } = useToast();
@@ -83,15 +84,13 @@ export default function ReservationsPage() {
     }
   };
 
+  usePageHeader({
+    title: 'Reservations',
+    description: 'Bookings synced from your channels — search, filter by stay dates, and sort',
+  });
+
   return (
     <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Reservations</h1>
-        <p className="text-gray-600 mt-1">
-          Bookings synced from your channels — search, filter by stay dates, and sort
-        </p>
-      </div>
-
       <Card className="border-gray-200 mb-6">
         <CardHeader className="pb-3">
           <CardTitle className="text-base">Filters</CardTitle>
@@ -114,7 +113,7 @@ export default function ReservationsPage() {
           </form>
           <div className="flex flex-wrap gap-3 items-end">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500">Check-in from</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-neutral-400">Check-in from</label>
               <Input
                 type="date"
                 value={checkInFrom}
@@ -125,7 +124,7 @@ export default function ReservationsPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500">Check-in to</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-neutral-400">Check-in to</label>
               <Input
                 type="date"
                 value={checkInTo}
@@ -166,8 +165,8 @@ export default function ReservationsPage() {
             <div className="p-4 bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl inline-flex mb-6">
               <CalendarDays className="h-12 w-12 text-amber-700" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No reservations</h3>
-            <p className="text-gray-600 max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-2">No reservations</h3>
+            <p className="text-gray-600 dark:text-neutral-400 max-w-md mx-auto">
               {search || checkInFrom || checkInTo
                 ? 'Try adjusting search or date filters.'
                 : 'Synced reservations from Hospitable will appear here.'}
@@ -180,12 +179,12 @@ export default function ReservationsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50/80">
-                    <th className="text-left p-3 font-semibold text-gray-700">Guest</th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                  <tr className="border-b border-gray-200 dark:border-border bg-gray-50/80 dark:bg-card">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">Guest</th>
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('propertyName')}
                       >
                         Property
@@ -199,10 +198,10 @@ export default function ReservationsPage() {
                     <th className="text-left p-3 font-semibold text-gray-700 min-w-[12rem]">
                       Guests
                     </th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('arrivalDate')}
                       >
                         Check-in
@@ -213,10 +212,10 @@ export default function ReservationsPage() {
                         )}
                       </button>
                     </th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('departureDate')}
                       >
                         Check-out
@@ -227,14 +226,14 @@ export default function ReservationsPage() {
                         )}
                       </button>
                     </th>
-                    <th className="text-right p-3 font-semibold text-gray-700 whitespace-nowrap">
+                    <th className="text-right p-3 font-semibold text-gray-700 dark:text-neutral-300 whitespace-nowrap">
                       Nights
                     </th>
-                    <th className="text-left p-3 font-semibold text-gray-700">Mood</th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">Mood</th>
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('platform')}
                       >
                         Platform
@@ -251,23 +250,23 @@ export default function ReservationsPage() {
                   {rows.map((r) => (
                     <tr
                       key={r.id}
-                      className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors"
+                      className="border-b border-gray-100 dark:border-border/60 hover:bg-gray-50/60 dark:hover:bg-muted/40 transition-colors"
                     >
-                      <td className="p-3 font-medium text-gray-900">{r.guestName}</td>
-                      <td className="p-3 text-gray-700">{r.propertyName ?? '—'}</td>
-                      <td className="p-3 text-left text-gray-700 text-xs leading-snug max-w-[16rem]">
+                      <td className="p-3 font-medium text-gray-900 dark:text-foreground">{r.guestName}</td>
+                      <td className="p-3 text-gray-700 dark:text-neutral-300">{r.propertyName ?? '—'}</td>
+                      <td className="p-3 text-left text-gray-700 dark:text-neutral-300 text-xs leading-snug max-w-[16rem]">
                         {r.guestsSummary}
                       </td>
-                      <td className="p-3 text-gray-700 whitespace-nowrap">
+                      <td className="p-3 text-gray-700 dark:text-neutral-300 whitespace-nowrap">
                         {reservationsApi.formatDate(r.checkIn)}
                       </td>
-                      <td className="p-3 text-gray-700 whitespace-nowrap">
+                      <td className="p-3 text-gray-700 dark:text-neutral-300 whitespace-nowrap">
                         {reservationsApi.formatDate(r.checkOut)}
                       </td>
-                      <td className="p-3 text-right tabular-nums text-gray-700">
+                      <td className="p-3 text-right tabular-nums text-gray-700 dark:text-neutral-300">
                         {r.nights != null ? r.nights : '—'}
                       </td>
-                      <td className="p-3 text-gray-700 capitalize">
+                      <td className="p-3 text-gray-700 dark:text-neutral-300 capitalize">
                         {r.mood?.trim() ? r.mood : '—'}
                       </td>
                       <td className="p-3">
@@ -283,7 +282,7 @@ export default function ReservationsPage() {
           </Card>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-neutral-400">
               Showing {rows.length} of {total} reservation{total === 1 ? '' : 's'}
             </p>
             <div className="flex items-center gap-2">

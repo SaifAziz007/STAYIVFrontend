@@ -77,12 +77,12 @@ export default function Sidebar() {
   // Same structure for SSR + first client paint: no localStorage until mounted
   if (!mounted) {
     return (
-      <aside className="w-64 bg-white/95 backdrop-blur-sm border-r border-gray-200 min-h-screen fixed left-0 top-16 shadow-sm">
+      <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border min-h-screen fixed left-0 top-16 shadow-sm transition-colors duration-200">
         <nav className="p-3 space-y-1" aria-busy="true" aria-label="Loading navigation">
           {menuItems.map((item) => (
             <div
               key={item.href}
-              className="h-10 rounded-lg bg-gray-100/90 animate-pulse"
+              className="h-10 rounded-lg bg-gray-100/90 dark:bg-muted/60 animate-pulse"
             />
           ))}
         </nav>
@@ -91,7 +91,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-white/95 backdrop-blur-sm border-r border-gray-200 min-h-screen fixed left-0 top-16 shadow-sm">
+    <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border min-h-screen fixed left-0 top-16 shadow-sm transition-colors duration-200">
       <nav className="p-3 space-y-1">
         {visible.map((item) => {
           const Icon = item.icon;
@@ -105,21 +105,21 @@ export default function Sidebar() {
               className={cn(
                 'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative',
                 isActive
-                  ? 'bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 shadow-sm border border-blue-100'
-                  : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900',
+                  ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 text-blue-700 dark:text-blue-400 shadow-sm border border-blue-100 dark:border-blue-800/80'
+                  : 'text-gray-700 dark:text-muted-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:text-gray-900 dark:hover:text-foreground',
               )}
             >
               <Icon
                 className={cn(
                   'h-5 w-5 transition-colors',
-                  isActive ? 'text-blue-600' : 'text-gray-500',
+                  isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-muted-foreground',
                 )}
               />
               <span className={cn('transition-colors', isActive && 'font-semibold')}>
                 {item.name}
               </span>
               {isActive && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 rounded-r-full" />
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 dark:bg-blue-500 rounded-r-full" />
               )}
             </Link>
           );

@@ -151,45 +151,45 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-indigo-100">
-              <Upload className="h-5 w-5 text-indigo-600" />
+          <DialogTitle className="flex items-center gap-3 text-foreground">
+            <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-950/45">
+              <Upload className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
             </div>
             Form Collection
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-gray-600 dark:text-muted-foreground">
             Upload a form for {reservationData.guestName} at {reservationData.propertyName || 'the property'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label className="text-sm font-semibold text-gray-900">Upload File (PDF, DOC, DOCX, XLS, XLSX, CSV)</Label>
+            <Label className="text-sm font-semibold text-gray-900 dark:text-foreground">Upload File (PDF, DOC, DOCX, XLS, XLSX, CSV)</Label>
             
             {!selectedFile ? (
               <div
-                className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-indigo-400 hover:bg-indigo-50/30 transition-all cursor-pointer"
+                className="border-2 border-dashed border-gray-300 dark:border-border rounded-xl p-8 text-center hover:border-indigo-400 dark:hover:border-indigo-500/60 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/25 transition-all cursor-pointer"
                 onClick={() => fileInputRef.current?.click()}
               >
-                <div className="p-3 bg-gray-100 rounded-lg inline-flex mb-3">
-                  <Upload className="h-6 w-6 text-gray-500" />
+                <div className="p-3 bg-gray-100 dark:bg-muted rounded-lg inline-flex mb-3">
+                  <Upload className="h-6 w-6 text-gray-500 dark:text-muted-foreground" />
                 </div>
-                <p className="text-sm font-medium text-gray-700 mb-1">
+                <p className="text-sm font-medium text-gray-700 dark:text-foreground mb-1">
                   Click to upload or drag and drop
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-muted-foreground">
                   PDF, DOC, DOCX, XLS, XLSX, CSV (max 10MB)
                 </p>
               </div>
             ) : (
-              <div className="border border-gray-300 rounded-xl p-4 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-purple-50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-indigo-100 rounded-lg">
-                    <File className="h-6 w-6 text-indigo-600" />
+              <div className="border border-gray-300 dark:border-border rounded-xl p-4 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/35 dark:to-purple-950/35 gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="p-2 bg-indigo-100 dark:bg-indigo-950/50 rounded-lg shrink-0">
+                    <File className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                   </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">{formatFileSize(selectedFile.size)}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-foreground truncate">{selectedFile.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
                   </div>
                 </div>
                 <Button
@@ -197,7 +197,7 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
                   size="sm"
                   onClick={handleRemoveFile}
                   disabled={uploading}
-                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/35 shrink-0"
                 >
                   <X className="h-4 w-4" />
                 </Button>
@@ -214,11 +214,11 @@ export default function FormCollectionModal({ isOpen, onClose, reservationData }
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-border">
           <Button variant="outline" onClick={onClose} disabled={uploading} className="min-w-[100px]">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={uploading || !selectedFile} className="bg-indigo-600 hover:bg-indigo-700 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
+          <Button onClick={handleSubmit} disabled={uploading || !selectedFile} className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-700 dark:hover:bg-indigo-600 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
             {uploading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

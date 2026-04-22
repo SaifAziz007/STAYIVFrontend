@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,7 @@ import {
   WashingMachine, ScrollText, MapPin, Settings, HelpCircle,
 } from 'lucide-react';
 import Link from 'next/link';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 export default function PropertySheetPage() {
   const params = useParams();
@@ -58,10 +59,33 @@ export default function PropertySheetPage() {
     setProperty(propertyData);
   };
 
+  const propertySheetBack = useMemo(
+    () => (
+      <Link href="/properties">
+        <Button variant="ghost" size="sm">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Properties
+        </Button>
+      </Link>
+    ),
+    [],
+  );
+
+  const sheetTitle =
+    property?.propertySheet?.identityData?.propertyName ||
+    property?.name ||
+    'Property Sheet';
+
+  usePageHeader({
+    title: sheetTitle,
+    description: 'Complete all 9 modules to fully train your AI assistant',
+    actions: propertySheetBack,
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-2 border-gray-200 dark:border-border border-t-blue-600 dark:border-t-blue-400" />
       </div>
     );
   }
@@ -69,7 +93,9 @@ export default function PropertySheetPage() {
   if (!property) {
     return (
       <div className="text-center py-16">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Property not found</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-4">
+          Property not found
+        </h2>
         <Link href="/properties">
           <Button>Back to Properties</Button>
         </Link>
@@ -91,22 +117,6 @@ export default function PropertySheetPage() {
 
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6">
-        <Link href="/properties">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Properties
-          </Button>
-        </Link>
-      </div>
-
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Property Sheet</h1>
-        <p className="text-gray-600 mt-1">
-          Complete all 9 modules to fully train your AI assistant
-        </p>
-      </div>
-
       {completion && (
         <div className="mb-8">
           <ProgressTracker completion={completion} />
