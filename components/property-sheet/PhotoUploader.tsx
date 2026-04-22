@@ -147,8 +147,12 @@ export default function PhotoUploader({
         onDrop={handleDrop}
         className={`
           border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}
-          ${photos.length >= maxPhotos ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400'}
+          ${
+            dragActive
+              ? 'border-blue-500 bg-blue-50 dark:bg-blue-950/40'
+              : 'border-gray-300 dark:border-border bg-gray-50 dark:bg-muted'
+          }
+          ${photos.length >= maxPhotos ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:border-blue-400 dark:hover:border-blue-500'}
         `}
       >
         <input
@@ -164,11 +168,11 @@ export default function PhotoUploader({
           htmlFor="photo-upload" 
           className={`cursor-pointer ${photos.length >= maxPhotos ? 'cursor-not-allowed' : ''}`}
         >
-          <Upload className="mx-auto h-12 w-12 text-gray-400 mb-3" />
-          <p className="text-lg font-medium text-gray-700 mb-1">
+          <Upload className="mx-auto h-12 w-12 text-gray-400 dark:text-muted-foreground mb-3" />
+          <p className="text-lg font-medium text-gray-700 dark:text-foreground mb-1">
             {uploading ? 'Uploading...' : 'Drop photos here or click to browse'}
           </p>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-muted-foreground">
             {photos.length} / {maxPhotos} photos • Max 5MB each • JPG, PNG, WebP
           </p>
         </label>
@@ -177,17 +181,17 @@ export default function PhotoUploader({
       {/* Photo Grid */}
       {photos.length > 0 && (
         <div className="space-y-3">
-          <h4 className="font-semibold text-gray-900">
+          <h4 className="font-semibold text-gray-900 dark:text-foreground">
             Uploaded Photos ({photos.length})
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="relative border rounded-lg overflow-hidden bg-white"
+                className="relative border border-gray-200 dark:border-border rounded-lg overflow-hidden bg-white dark:bg-card"
               >
                 {/* Photo Preview */}
-                <div className="aspect-video relative bg-gray-100">
+                <div className="aspect-video relative bg-gray-100 dark:bg-muted">
                   <img
                     src={photo.url}
                     alt={photo.caption || `Photo ${index + 1}`}
@@ -207,7 +211,7 @@ export default function PhotoUploader({
                     placeholder="Add caption (optional)"
                     value={photo.caption || ''}
                     onChange={(e) => updateCaption(photo.id, e.target.value)}
-                    className="w-full text-sm border rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full text-sm border border-gray-300 dark:border-border rounded px-2 py-1 bg-white dark:bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400"
                   />
                   
                   <div className="flex items-center justify-between gap-2">

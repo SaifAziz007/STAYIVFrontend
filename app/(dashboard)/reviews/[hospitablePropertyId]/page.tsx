@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { reviewsApi, HospitableReview, ReviewsByRating } from '@/lib/reviews-api';
 import { Star, ArrowLeft, Calendar, User, MessageSquare, Loader2, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 type RatingFilter = 'all' | 1 | 2 | 3 | 4 | 5;
 
@@ -73,7 +74,7 @@ export default function PropertyReviewsPage() {
               'h-4 w-4',
               star <= rating
                 ? 'fill-yellow-400 text-yellow-400'
-                : 'text-gray-300'
+                : 'text-gray-300 dark:text-neutral-600'
             )}
           />
         ))}
@@ -105,54 +106,46 @@ export default function PropertyReviewsPage() {
 
   const averageRating = reviewsApi.calculateAverageRating(reviews);
 
+  const reviewsDetailBack = useMemo(
+    () => (
+      <Button variant="ghost" onClick={() => router.push('/reviews')}>
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Back to All Properties
+      </Button>
+    ),
+    [router],
+  );
+
+  const reviewSubtitle =
+    !loading && reviews.length > 0
+      ? `${averageRating > 0 ? averageRating.toFixed(2) : 'N/A'} avg · ${reviews.length} ${reviews.length === 1 ? 'review' : 'reviews'}`
+      : 'Guest reviews for this property';
+
+  usePageHeader({
+    title: propertyName,
+    description: reviewSubtitle,
+    actions: reviewsDetailBack,
+  });
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <Loader2 className="h-12 w-12 animate-spin text-blue-600 mb-4" />
-        <p className="text-gray-600">Loading reviews...</p>
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600 dark:text-blue-400 mb-4" />
+        <p className="text-gray-600 dark:text-muted-foreground">Loading reviews...</p>
       </div>
     );
   }
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.push('/reviews')}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to All Properties
-        </Button>
-
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{propertyName}</h1>
-            <div className="flex items-center gap-4 mt-2">
-              <div className="flex items-center gap-2">
-                <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
-                <span className="text-2xl font-bold">
-                  {averageRating > 0 ? averageRating.toFixed(2) : 'N/A'}
-                </span>
-              </div>
-              <span className="text-gray-600">
-                {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {error && (
-        <Card className="mb-6 border-red-200 bg-red-50">
+        <Card className="mb-6 border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/25">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5" />
               <div>
-                <p className="font-medium text-red-900">Error</p>
-                <p className="text-sm text-red-700">{error}</p>
+                <p className="font-medium text-red-900 dark:text-red-200">Error</p>
+                <p className="text-sm text-red-700 dark:text-red-300/90">{error}</p>
               </div>
             </div>
           </CardContent>
@@ -161,7 +154,7 @@ export default function PropertyReviewsPage() {
 
       {/* Rating Filter Tabs */}
       {groupedReviews && (
-        <Card className="mb-6">
+        <Card className="mb-6 border-gray-200 dark:border-border">
           <CardContent className="pt-6">
             <div className="flex flex-wrap gap-2">
               <Button
@@ -192,13 +185,13 @@ export default function PropertyReviewsPage() {
 
       {/* Reviews List */}
       {getFilteredReviews().length === 0 ? (
-        <Card>
+        <Card className="border-gray-200 dark:border-border">
           <CardContent className="py-16 text-center">
-            <MessageSquare className="h-16 w-16 text-gray-400 mb-4 mx-auto" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <MessageSquare className="h-16 w-16 text-gray-400 dark:text-muted-foreground mb-4 mx-auto" />
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-foreground mb-2">
               No reviews found
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 dark:text-muted-foreground">
               {selectedRating !== 'all'
                 ? `No ${selectedRating}-star reviews for this property.`
                 : 'This property has no reviews yet.'}
@@ -213,22 +206,22 @@ export default function PropertyReviewsPage() {
               (review.private.detailed_ratings && review.private.detailed_ratings.some(r => r.rating > 0));
 
             return (
-              <Card key={review.id} className="hover:shadow-md transition-shadow">
+              <Card key={review.id} className="hover:shadow-md transition-shadow border-gray-200 dark:border-border">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="secondary" className="text-xs dark:bg-secondary dark:text-secondary-foreground">
                           {review.platform.toUpperCase()}
                         </Badge>
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-muted-foreground">
                           <Calendar className="h-3 w-3" />
                           <span>{formatDate(review.reviewed_at)}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
                         {renderStars(review.public.rating)}
-                        <span className="font-semibold text-lg">
+                        <span className="font-semibold text-lg text-gray-900 dark:text-foreground">
                           {review.public.rating}/5
                         </span>
                       </div>
@@ -241,9 +234,9 @@ export default function PropertyReviewsPage() {
                         className="ml-2"
                       >
                         {isExpanded ? (
-                          <ChevronUp className="h-5 w-5 text-gray-600" />
+                          <ChevronUp className="h-5 w-5 text-gray-600 dark:text-muted-foreground" />
                         ) : (
-                          <ChevronDown className="h-5 w-5 text-gray-600" />
+                          <ChevronDown className="h-5 w-5 text-gray-600 dark:text-muted-foreground" />
                         )}
                       </Button>
                     )}
@@ -254,13 +247,13 @@ export default function PropertyReviewsPage() {
                   {/* Public Review - Always visible */}
                   {review.public.review && (
                     <div>
-                      <h4 className="font-semibold text-gray-900 mb-2">
+                      <h4 className="font-semibold text-gray-900 dark:text-foreground mb-2">
                         {review.guest 
                           ? `${review.guest.first_name}${review.guest.last_name ? ' ' + review.guest.last_name : ''}` 
                           : 'Guest Review'
                         }
                       </h4>
-                      <p className="text-gray-700 leading-relaxed">
+                      <p className="text-gray-700 dark:text-neutral-300 leading-relaxed">
                         "{review.public.review}"
                       </p>
                     </div>
@@ -271,13 +264,13 @@ export default function PropertyReviewsPage() {
                     <>
                       {/* Host Response */}
                       {review.public.response && (
-                        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-                          <h4 className="font-semibold text-blue-900 mb-2">Host Response</h4>
-                          <p className="text-blue-800 text-sm">
+                        <div className="bg-blue-50 dark:bg-blue-950/40 border-l-4 border-blue-500 dark:border-blue-500 p-4 rounded">
+                          <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">Host Response</h4>
+                          <p className="text-blue-800 dark:text-blue-100/90 text-sm">
                             "{review.public.response}"
                           </p>
                           {review.responded_at && (
-                            <p className="text-xs text-blue-600 mt-2">
+                            <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
                               Responded on {formatDate(review.responded_at)}
                             </p>
                           )}
@@ -286,9 +279,9 @@ export default function PropertyReviewsPage() {
 
                       {/* Private Feedback */}
                       {review.private.feedback && (
-                        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded">
-                          <h4 className="font-semibold text-yellow-900 mb-2">Private Feedback</h4>
-                          <p className="text-yellow-800 text-sm">
+                        <div className="bg-yellow-50 dark:bg-yellow-950/35 border-l-4 border-yellow-500 dark:border-yellow-600 p-4 rounded">
+                          <h4 className="font-semibold text-yellow-900 dark:text-yellow-200 mb-2">Private Feedback</h4>
+                          <p className="text-yellow-800 dark:text-yellow-100/85 text-sm">
                             "{review.private.feedback}"
                           </p>
                         </div>
@@ -297,18 +290,21 @@ export default function PropertyReviewsPage() {
                       {/* Detailed Ratings */}
                       {review.private.detailed_ratings && review.private.detailed_ratings.length > 0 && (
                         <div>
-                          <h4 className="font-semibold text-gray-900 mb-3">Detailed Ratings</h4>
+                          <h4 className="font-semibold text-gray-900 dark:text-foreground mb-3">Detailed Ratings</h4>
                           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                             {review.private.detailed_ratings
                               .filter(rating => rating.rating > 0)
                               .map((rating, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                                  <span className="text-sm capitalize text-gray-700">
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between p-2 bg-gray-50 dark:bg-muted rounded border border-transparent dark:border-border/60"
+                                >
+                                  <span className="text-sm capitalize text-gray-700 dark:text-foreground">
                                     {rating.type}
                                   </span>
                                   <div className="flex items-center gap-1">
                                     {renderStars(rating.rating)}
-                                    <span className="text-xs text-gray-600 ml-1">
+                                    <span className="text-xs text-gray-600 dark:text-muted-foreground ml-1">
                                       {rating.rating}
                                     </span>
                                   </div>

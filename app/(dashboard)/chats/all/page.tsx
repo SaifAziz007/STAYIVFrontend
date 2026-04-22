@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,9 @@ import PendingPaymentModal from '@/components/pending-payment-modal';
 import FormCollectionModal from '@/components/form-collection-modal';
 import { authApi, canViewScreen, type User } from '@/lib/auth';
 import { CHAT_ACTION_TO_SCREEN } from '@/lib/chat-action-permissions';
+import { usePageHeader } from '@/components/layout/page-header-context';
+import { getMoodConfig } from '@/lib/chat-mood-config';
+import { resolvePropertyNameFromReservation } from '@/lib/reservation-property-display';
 
 
 export default function AllChatsPage() {
@@ -44,122 +47,6 @@ export default function AllChatsPage() {
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [showEarlyCheckin, setShowEarlyCheckin] = useState(false);  // Add this
   const [showLateCheckout, setShowLateCheckout] = useState(false);  // Add this
-
-  // Mood configuration helper
-  const getMoodConfig = (mood: string | null) => {
-    if (!mood) return null;
-
-    const moodLower = mood.toLowerCase().trim();
-
-    const moodConfigs: Record<string, { label: string; className: string; icon: string }> = {
-      // Positive moods
-      'happy': {
-        label: 'Happy',
-        className: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-        icon: '😊'
-      },
-      'excited': {
-        label: 'Excited',
-        className: 'bg-amber-50 text-amber-700 border-amber-200',
-        icon: '🤩'
-      },
-      'satisfied': {
-        label: 'Satisfied',
-        className: 'bg-green-50 text-green-700 border-green-200',
-        icon: '😌'
-      },
-      'pleased': {
-        label: 'Pleased',
-        className: 'bg-teal-50 text-teal-700 border-teal-200',
-        icon: '😊'
-      },
-      'grateful': {
-        label: 'Grateful',
-        className: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-        icon: '🙏'
-      },
-
-      // Neutral moods
-      'neutral': {
-        label: 'Neutral',
-        className: 'bg-gray-50 text-gray-700 border-gray-200',
-        icon: '😐'
-      },
-      'calm': {
-        label: 'Calm',
-        className: 'bg-blue-50 text-blue-700 border-blue-200',
-        icon: '😌'
-      },
-      'curious': {
-        label: 'Curious',
-        className: 'bg-purple-50 text-purple-700 border-purple-200',
-        icon: '🤔'
-      },
-
-      // Negative moods
-      'frustrated': {
-        label: 'Frustrated',
-        className: 'bg-orange-50 text-orange-700 border-orange-200',
-        icon: '😤'
-      },
-      'disappointed': {
-        label: 'Disappointed',
-        className: 'bg-red-50 text-red-700 border-red-200',
-        icon: '😞'
-      },
-      'concerned': {
-        label: 'Concerned',
-        className: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-        icon: '😟'
-      },
-      'angry': {
-        label: 'Angry',
-        className: 'bg-red-100 text-red-800 border-red-300',
-        icon: '😠'
-      },
-      'confused': {
-        label: 'Confused',
-        className: 'bg-slate-50 text-slate-700 border-slate-200',
-        icon: '😕'
-      },
-
-      // Professional moods
-      'polite': {
-        label: 'Polite',
-        className: 'bg-sky-50 text-sky-700 border-sky-200',
-        icon: '🙂'
-      },
-      'professional': {
-        label: 'Professional',
-        className: 'bg-slate-50 text-slate-700 border-slate-200',
-        icon: '💼'
-      },
-      'friendly': {
-        label: 'Friendly',
-        className: 'bg-rose-50 text-rose-700 border-rose-200',
-        icon: '😄'
-      }
-    };
-
-    // Find exact match first
-    if (moodLower in moodConfigs) {
-      return moodConfigs[moodLower];
-    }
-
-    // Find partial matches
-    for (const [key, config] of Object.entries(moodConfigs)) {
-      if (moodLower.includes(key) || key.includes(moodLower)) {
-        return config;
-      }
-    }
-
-    // Default fallback for unknown moods
-    return {
-      label: mood.charAt(0).toUpperCase() + mood.slice(1),
-      className: 'bg-gray-50 text-gray-600 border-gray-200',
-      icon: '💭'
-    };
-  };
 
   // Get mood statistics
   const getMoodStats = () => {
@@ -304,43 +191,49 @@ export default function AllChatsPage() {
         icon: Flag,
         activeText: 'Claim',
         actionedText: 'Claimed',
-        activeClass: 'text-blue-600 border-blue-200 hover:bg-blue-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-800 dark:text-blue-400 dark:border-blue-800/70 dark:hover:bg-blue-950/50 dark:hover:text-blue-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       },
       review: {
         icon: AlertTriangle,
         activeText: 'Review',
         actionedText: 'In Review',
-        activeClass: 'text-orange-600 border-orange-200 hover:bg-orange-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-orange-600 border-orange-200 hover:bg-orange-50 hover:text-orange-800 dark:text-orange-400 dark:border-orange-800/70 dark:hover:bg-orange-950/45 dark:hover:text-orange-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       },
       'lost-found': {
         icon: Search,
         activeText: 'Lost & Found',
         actionedText: 'Reported',
-        activeClass: 'text-purple-600 border-purple-200 hover:bg-purple-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-purple-600 border-purple-200 hover:bg-purple-50 hover:text-purple-800 dark:text-purple-400 dark:border-purple-800/70 dark:hover:bg-purple-950/45 dark:hover:text-purple-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       },
       'issues': {
         icon: FileText,
         activeText: 'Open Issues',
         actionedText: 'Issue Logged',
-        activeClass: 'text-red-600 border-red-200 hover:bg-red-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-red-600 border-red-200 hover:bg-red-50 hover:text-red-800 dark:text-red-400 dark:border-red-800/70 dark:hover:bg-red-950/45 dark:hover:text-red-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       },
       'payment': {
         icon: DollarSign,
         activeText: 'Pending Payment',
         actionedText: 'Payment Logged',
-        activeClass: 'text-green-600 border-green-200 hover:bg-green-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-green-600 border-green-200 hover:bg-green-50 hover:text-green-800 dark:text-green-400 dark:border-green-800/70 dark:hover:bg-green-950/45 dark:hover:text-green-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       },
       'form': {
         icon: Upload,
         activeText: 'Form Collection',
         actionedText: 'Form Collected',
-        activeClass: 'text-indigo-600 border-indigo-200 hover:bg-indigo-50',
-        actionedClass: 'text-gray-500 border-gray-300 cursor-not-allowed'
+        activeClass:
+          'text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 dark:text-indigo-400 dark:border-indigo-800/70 dark:hover:bg-indigo-950/45 dark:hover:text-indigo-100',
+        actionedClass: 'text-gray-500 dark:text-neutral-500 border-gray-300 dark:border-border cursor-not-allowed'
       }
     };
 
@@ -377,7 +270,7 @@ export default function AllChatsPage() {
       guestName: guest ? `${guest.first_name} ${guest.last_name || ''}`.trim() : 'Guest',
       guestEmail: guest?.email || '',
       guestPhone: guest?.phone_numbers?.[0] || '',
-      propertyName: 'Property', // This would come from property data if available
+      propertyName: resolvePropertyNameFromReservation(conversation) ?? '',
       checkInDate: conversation.arrivalDate || '',
       checkOutDate: conversation.departureDate || '',
       platform: conversation.platform,
@@ -419,6 +312,37 @@ export default function AllChatsPage() {
       setSyncing(false);
     }
   };
+
+  const syncConversationsRef = useRef(handleSyncConversations);
+  syncConversationsRef.current = handleSyncConversations;
+  const chatsHeaderActions = useMemo(
+    () => (
+      <Button
+        onClick={() => void syncConversationsRef.current()}
+        disabled={syncing}
+        variant="outline"
+      >
+        {syncing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Syncing...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Sync from Hospitable
+          </>
+        )}
+      </Button>
+    ),
+    [syncing],
+  );
+
+  usePageHeader({
+    title: 'Latest Conversations',
+    description: 'All recent inquiries and reservations from your properties',
+    actions: chatsHeaderActions,
+  });
 
   const handleDebugInfo = async () => {
     try {
@@ -491,7 +415,7 @@ export default function AllChatsPage() {
     return (
       <Card
         key={conversation.id}
-        className="hover:shadow-lg transition-all cursor-pointer border border-gray-200 bg-white"
+        className="hover:shadow-lg transition-all cursor-pointer border border-gray-200 dark:border-border bg-white dark:bg-card"
         onClick={() => {
           const conversationIdentifier = conversation.type === 'reservation'
             ? (conversation as ReservationConversation).conversationId
@@ -511,7 +435,7 @@ export default function AllChatsPage() {
               </Avatar>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900 text-base">{guestName}</h3>
+                  <h3 className="font-bold text-gray-900 dark:text-foreground text-base">{guestName}</h3>
                   {/* Mood badge */}
                   {conversation.type === 'reservation' && (conversation as ReservationConversation).mood && (() => {
                     const moodConfig = getMoodConfig((conversation as ReservationConversation).mood || null);
@@ -529,8 +453,8 @@ export default function AllChatsPage() {
                 {/* Property Name */}
                 {conversation.type === 'reservation' && (conversation as ReservationConversation).propertyName && (
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <Home className="h-3.5 w-3.5 text-gray-600" />
-                    <span className="text-sm text-gray-700 font-medium">
+                    <Home className="h-3.5 w-3.5 text-gray-600 dark:text-neutral-400" />
+                    <span className="text-sm text-gray-700 dark:text-neutral-300 font-medium">
                       {(conversation as ReservationConversation).propertyName}
                     </span>
                   </div>
@@ -542,7 +466,7 @@ export default function AllChatsPage() {
                   >
                     {conversation.platform}
                   </Badge>
-                  <Badge className="text-xs bg-gray-200 text-gray-700 border-0 font-medium">
+                  <Badge className="text-xs bg-gray-200 dark:bg-muted text-gray-700 dark:text-neutral-300 border-0 font-medium">
                     {conversation.type}
                   </Badge>
                 </div>
@@ -552,8 +476,8 @@ export default function AllChatsPage() {
             <div className="text-right text-sm">
               {conversation.lastMessageAt && (
                 <div>
-                  <div className="font-semibold text-gray-900">{conversationsApi.formatDateForDisplay(conversation.lastMessageAt)}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{conversationsApi.formatTimeForDisplay(conversation.lastMessageAt)}</div>
+                  <div className="font-semibold text-gray-900 dark:text-foreground">{conversationsApi.formatDateForDisplay(conversation.lastMessageAt)}</div>
+                  <div className="text-xs text-gray-500 dark:text-neutral-400 mt-0.5">{conversationsApi.formatTimeForDisplay(conversation.lastMessageAt)}</div>
                 </div>
               )}
             </div>
@@ -562,21 +486,21 @@ export default function AllChatsPage() {
           {/* Check-in/Check-out Section */}
           {conversation.type === 'reservation' && (
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-3.5 border border-green-200 shadow-sm">
+              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 rounded-xl p-3.5 border border-green-200 dark:border-green-900 shadow-sm">
                 <div className="flex items-center gap-2 text-green-700 mb-1.5">
                   <Calendar className="h-4 w-4" />
                   <span className="text-[10px] font-bold uppercase tracking-wide">Check-in</span>
                 </div>
-                <div className="font-bold text-gray-900 text-base">
+                <div className="font-bold text-gray-900 dark:text-foreground text-base">
                   {conversationsApi.formatDateForDisplay((conversation as ReservationConversation).arrivalDate)}
                 </div>
               </div>
-              <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-3.5 border border-red-200 shadow-sm">
+              <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 rounded-xl p-3.5 border border-red-200 dark:border-red-900 shadow-sm">
                 <div className="flex items-center gap-2 text-red-700 mb-1.5">
                   <Calendar className="h-4 w-4" />
                   <span className="text-[10px] font-bold uppercase tracking-wide">Check-out</span>
                 </div>
-                <div className="font-bold text-gray-900 text-base">
+                <div className="font-bold text-gray-900 dark:text-foreground text-base">
                   {conversationsApi.formatDateForDisplay((conversation as ReservationConversation).departureDate)}
                 </div>
               </div>
@@ -584,7 +508,7 @@ export default function AllChatsPage() {
           )}
 
           {/* Details Section */}
-          <div className="flex items-center gap-6 mb-4 text-sm text-gray-700">
+          <div className="flex items-center gap-6 mb-4 text-sm text-gray-700 dark:text-neutral-300">
             {conversation.type === 'reservation' && (conversation as ReservationConversation).nights && (
               <div className="flex items-center gap-2">
                 <svg className="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -596,12 +520,12 @@ export default function AllChatsPage() {
               </div>
             )}
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-gray-500" />
+              <Users className="h-4 w-4 text-gray-500 dark:text-neutral-400" />
               <span className="font-semibold text-gray-700">{guestSummary}</span>
             </div>
             {guest?.location && (
               <div className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-gray-500" />
+                <MapPin className="h-4 w-4 text-gray-500 dark:text-neutral-400" />
                 <span className="font-semibold text-gray-700">{guest.location}</span>
               </div>
             )}
@@ -627,7 +551,7 @@ export default function AllChatsPage() {
 
           {/* Action Buttons */}
           {conversation.type === 'reservation' && (
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-300">
+            <div className="flex flex-wrap gap-2 pt-4 border-t border-gray-300 dark:border-border">
               <ActionButton
                 actionType="claim"
                 conversation={conversation}
@@ -703,7 +627,7 @@ export default function AllChatsPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading conversations...</p>
+            <p className="text-gray-600 dark:text-neutral-400">Loading conversations...</p>
           </div>
         </div>
       </div>
@@ -712,39 +636,10 @@ export default function AllChatsPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Latest Conversations</h1>
-          <p className="text-gray-600 mt-1">
-            All recent inquiries and reservations from your properties
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            onClick={handleSyncConversations}
-            disabled={syncing}
-            variant="outline"
-          >
-            {syncing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Syncing...
-              </>
-            ) : (
-              <>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Sync from Hospitable
-              </>
-            )}
-          </Button>
-
-        </div>
-      </div>
-
       {error && (
-        <Card className="mb-6 border-red-200 bg-red-50">
+        <Card className="mb-6 border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/20">
           <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-red-700">
+            <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
               <AlertCircle className="h-5 w-5" />
               <span>{error}</span>
             </div>
@@ -755,14 +650,14 @@ export default function AllChatsPage() {
       <div className="flex gap-6">
         {/* Enhanced Filter Sidebar */}
         <div className="w-72 flex-shrink-0">
-          <Card className="sticky top-6 shadow-sm border-gray-200">
-            <CardHeader className="pb-4 border-b bg-white">
+          <Card className="sticky top-6 shadow-sm border-gray-200 dark:border-border">
+            <CardHeader className="pb-4 border-b border-gray-200 dark:border-border bg-white dark:bg-card">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <svg className="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                   </svg>
-                  <CardTitle className="text-lg font-bold text-gray-900">Filters</CardTitle>
+                  <CardTitle className="text-lg font-bold text-gray-900 dark:text-foreground">Filters</CardTitle>
                 </div>
                 {(selectedMoods.length > 0 || showEarlyCheckin || showLateCheckout) && (
                   <button
@@ -777,7 +672,7 @@ export default function AllChatsPage() {
                   </button>
                 )}
               </div>
-              <CardDescription className="text-xs text-gray-500 mt-1">
+              <CardDescription className="text-xs text-gray-500 dark:text-neutral-400 mt-1">
                 {selectedMoods.length === 0 && !showEarlyCheckin && !showLateCheckout
                   ? 'No filters applied'
                   : `${selectedMoods.length + (showEarlyCheckin ? 1 : 0) + (showLateCheckout ? 1 : 0)} active filter${(selectedMoods.length + (showEarlyCheckin ? 1 : 0) + (showLateCheckout ? 1 : 0)) > 1 ? 's' : ''}`}
@@ -785,9 +680,9 @@ export default function AllChatsPage() {
             </CardHeader>
             <CardContent className="p-0">
               {/* Special Requests Section */}
-              <div className="border-b border-gray-100">
-                <div className="px-4 py-3 bg-white">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Special Requests</h3>
+              <div className="border-b border-gray-100 dark:border-border">
+                <div className="px-4 py-3 bg-white dark:bg-card">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-400">Special Requests</h3>
                 </div>
                 <div className="p-3 space-y-2">
                   {/* Early Check-in Filter */}
@@ -795,29 +690,29 @@ export default function AllChatsPage() {
                     className={cn(
                       "flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all",
                       showEarlyCheckin
-                        ? "bg-orange-50 border border-orange-200 shadow-sm"
-                        : "hover:bg-gray-50 border border-transparent"
+                        ? "bg-orange-50 border border-orange-200 shadow-sm dark:bg-orange-950/40 dark:border-orange-800/70 dark:shadow-none"
+                        : "hover:bg-gray-50 dark:hover:bg-muted/50 border border-transparent"
                     )}
                     onClick={() => setShowEarlyCheckin(!showEarlyCheckin)}
                   >
                     <div className="flex items-center gap-2.5">
                       <div className={cn(
                         "w-8 h-8 rounded-lg flex items-center justify-center",
-                        showEarlyCheckin ? "bg-orange-100" : "bg-gray-100"
+                        showEarlyCheckin ? "bg-orange-100 dark:bg-orange-900/40" : "bg-gray-100 dark:bg-muted"
                       )}>
                         <span className="text-base">⏰</span>
                       </div>
                       <span className={cn(
                         "text-sm font-medium",
-                        showEarlyCheckin ? "text-orange-900" : "text-gray-700"
+                        showEarlyCheckin ? "text-orange-900 dark:text-orange-300" : "text-gray-700 dark:text-neutral-300"
                       )}>Early Check-in</span>
                     </div>
                     <Badge
                       className={cn(
                         "text-xs font-semibold min-w-[24px] h-6 flex items-center justify-center",
-                        showEarlyCheckin 
-                          ? "bg-orange-200 text-orange-900 border-0" 
-                          : "bg-gray-200 text-gray-600 border-0"
+                        showEarlyCheckin
+                          ? "bg-orange-200 dark:bg-orange-900/60 text-orange-900 dark:text-orange-300 border-0"
+                          : "bg-gray-200 dark:bg-secondary text-gray-600 dark:text-neutral-300 border-0"
                       )}
                     >
                       {conversations.filter(c =>
@@ -831,29 +726,29 @@ export default function AllChatsPage() {
                     className={cn(
                       "flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all",
                       showLateCheckout
-                        ? "bg-blue-50 border border-blue-200 shadow-sm"
-                        : "hover:bg-gray-50 border border-transparent"
+                        ? "bg-blue-50 border border-blue-200 shadow-sm dark:bg-blue-950/45 dark:border-blue-800/70 dark:shadow-none"
+                        : "hover:bg-gray-50 dark:hover:bg-muted/50 border border-transparent"
                     )}
                     onClick={() => setShowLateCheckout(!showLateCheckout)}
                   >
                     <div className="flex items-center gap-2.5">
                       <div className={cn(
                         "w-8 h-8 rounded-lg flex items-center justify-center",
-                        showLateCheckout ? "bg-blue-100" : "bg-gray-100"
+                        showLateCheckout ? "bg-blue-100 dark:bg-blue-900/40" : "bg-gray-100 dark:bg-muted"
                       )}>
                         <span className="text-base">🕐</span>
                       </div>
                       <span className={cn(
                         "text-sm font-medium",
-                        showLateCheckout ? "text-blue-900" : "text-gray-700"
+                        showLateCheckout ? "text-blue-900 dark:text-blue-300" : "text-gray-700 dark:text-neutral-300"
                       )}>Late Check-out</span>
                     </div>
                     <Badge
                       className={cn(
                         "text-xs font-semibold min-w-[24px] h-6 flex items-center justify-center",
-                        showLateCheckout 
-                          ? "bg-blue-200 text-blue-900 border-0" 
-                          : "bg-gray-200 text-gray-600 border-0"
+                        showLateCheckout
+                          ? "bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 border-0"
+                          : "bg-gray-200 dark:bg-secondary text-gray-600 dark:text-neutral-300 border-0"
                       )}
                     >
                       {conversations.filter(c =>
@@ -866,8 +761,8 @@ export default function AllChatsPage() {
 
               {/* Mood Filter Section */}
               <div>
-                <div className="px-4 py-3 bg-white">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500">Filter by Mood</h3>
+                <div className="px-4 py-3 bg-white dark:bg-card">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-400">Filter by Mood</h3>
                 </div>
                 <div className="p-3 space-y-2 max-h-[400px] overflow-y-auto">
                   {getMoodStats().map(({ mood, count }) => {
@@ -880,8 +775,8 @@ export default function AllChatsPage() {
                         className={cn(
                           "flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer transition-all",
                           isSelected
-                            ? "bg-blue-50 border border-blue-200 shadow-sm"
-                            : "hover:bg-gray-50 border border-transparent"
+                            ? "bg-blue-50 border border-blue-200 shadow-sm dark:bg-blue-950/45 dark:border-blue-800/70 dark:shadow-none"
+                            : "hover:bg-gray-50 dark:hover:bg-muted/50 border border-transparent"
                         )}
                         onClick={() => {
                           if (isSelected) {
@@ -894,21 +789,21 @@ export default function AllChatsPage() {
                         <div className="flex items-center gap-2.5">
                           <div className={cn(
                             "w-8 h-8 rounded-lg flex items-center justify-center",
-                            isSelected ? moodConfig?.className : "bg-gray-100"
+                            isSelected ? moodConfig?.className : "bg-gray-100 dark:bg-muted"
                           )}>
                             <span className="text-base">{moodConfig?.icon || '💭'}</span>
                           </div>
                           <span className={cn(
                             "text-sm font-medium",
-                            isSelected ? "text-blue-900" : "text-gray-700"
+                            isSelected ? "text-blue-900 dark:text-blue-300" : "text-gray-700 dark:text-neutral-300"
                           )}>{mood}</span>
                         </div>
                         <Badge
                           className={cn(
                             "text-xs font-semibold min-w-[24px] h-6 flex items-center justify-center",
-                            isSelected 
-                              ? "bg-blue-200 text-blue-900 border-0" 
-                              : "bg-gray-200 text-gray-600 border-0"
+                            isSelected
+                              ? "bg-blue-200 dark:bg-blue-900/60 text-blue-900 dark:text-blue-300 border-0"
+                              : "bg-gray-200 dark:bg-secondary text-gray-600 dark:text-neutral-300 border-0"
                           )}
                         >
                           {count}
@@ -919,13 +814,13 @@ export default function AllChatsPage() {
 
                   {getMoodStats().length === 0 && (
                     <div className="text-center py-8">
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-muted flex items-center justify-center mx-auto mb-3">
+                        <svg className="h-6 w-6 text-gray-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
                         </svg>
                       </div>
-                      <p className="text-sm font-medium text-gray-900 mb-1">No mood data available</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-medium text-gray-900 dark:text-foreground mb-1">No mood data available</p>
+                      <p className="text-xs text-gray-500 dark:text-neutral-400">
                         Sync conversations to see mood analysis
                       </p>
                     </div>
@@ -956,11 +851,11 @@ export default function AllChatsPage() {
                 {getFilteredConversations().length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
-                      <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-foreground mb-2">
                         No conversations found
                       </h3>
-                      <p className="text-gray-600 mb-4">
+                      <p className="text-gray-600 dark:text-neutral-400 mb-4">
                         No conversations available. Try syncing from Hospitable.
                       </p>
                     </CardContent>
@@ -976,8 +871,8 @@ export default function AllChatsPage() {
                 {getFilteredConversations().length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
-                      <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-foreground mb-2">
                         No reservations found
                       </h3>
                       <p className="text-gray-600">
@@ -996,11 +891,11 @@ export default function AllChatsPage() {
                 {getFilteredConversations().length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
-                      <MessageCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                      <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-foreground mb-2">
                         No inquiries found
                       </h3>
-                      <p className="text-gray-600">No inquiries available.</p>
+                      <p className="text-gray-600 dark:text-neutral-400">No inquiries available.</p>
                     </CardContent>
                   </Card>
                 ) : (

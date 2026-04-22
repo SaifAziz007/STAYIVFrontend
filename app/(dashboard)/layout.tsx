@@ -6,6 +6,7 @@ import { authApi, canViewScreen } from '@/lib/auth';
 import { getRequiredScreenForPath } from '@/lib/route-permissions';
 import Header from '@/components/layout/Header';
 import Sidebar from '@/components/layout/Sidebar';
+import { PageHeaderProvider } from '@/components/layout/page-header-context';
 import { Toaster } from 'sonner';
 
 export default function DashboardLayout({
@@ -52,11 +53,15 @@ export default function DashboardLayout({
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <Header />
-      <Sidebar />
-      <main className="ml-64 mt-16 p-8">{children}</main>
-      <Toaster position="top-right" richColors />
-    </div>
+    <PageHeaderProvider>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <Sidebar />
+        <main className="ml-64 mt-16 min-h-[calc(100vh-4rem)] bg-background p-8">
+          {children}
+        </main>
+        <Toaster position="top-right" richColors />
+      </div>
+    </PageHeaderProvider>
   );
 }

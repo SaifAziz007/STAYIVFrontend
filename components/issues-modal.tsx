@@ -80,48 +80,48 @@ export default function IssuesModal({ isOpen, onClose, reservationData }: Issues
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-red-100">
-              <FileText className="h-5 w-5 text-red-600" />
+          <DialogTitle className="flex items-center gap-3 text-foreground">
+            <div className="p-2 rounded-lg bg-red-100 dark:bg-red-950/45">
+              <FileText className="h-5 w-5 text-red-600 dark:text-red-400" />
             </div>
             Open Issues
           </DialogTitle>
-          <DialogDescription className="text-gray-600">
+          <DialogDescription className="text-gray-600 dark:text-muted-foreground">
             Log issues for {reservationData.guestName} at {reservationData.propertyName || 'the property'}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-5 py-4">
           <div className="space-y-2">
-            <Label htmlFor="openIssues" className="text-sm font-semibold text-gray-900">Open Issues</Label>
+            <Label htmlFor="openIssues" className="text-sm font-semibold text-gray-900 dark:text-foreground">Open Issues</Label>
             <Textarea
               id="openIssues"
               placeholder="Describe any open or unresolved issues..."
               value={openIssues}
               onChange={(e) => setOpenIssues(e.target.value)}
               rows={5}
-              className="resize-none border-gray-300 focus:border-red-500 focus:ring-red-500"
+              className="resize-none border-gray-300 focus:border-red-500 focus:ring-red-500 dark:border-border dark:focus:border-red-500 dark:focus:ring-red-500/30"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="closedIssues" className="text-sm font-semibold text-gray-900">Closed Issues</Label>
+            <Label htmlFor="closedIssues" className="text-sm font-semibold text-gray-900 dark:text-foreground">Closed Issues</Label>
             <Textarea
               id="closedIssues"
               placeholder="Describe any resolved or closed issues..."
               value={closedIssues}
               onChange={(e) => setClosedIssues(e.target.value)}
               rows={5}
-              className="resize-none border-gray-300 focus:border-green-500 focus:ring-green-500"
+              className="resize-none border-gray-300 focus:border-green-500 focus:ring-green-500 dark:border-border dark:focus:border-green-600 dark:focus:ring-green-600/30"
             />
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
+        <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-border">
           <Button variant="outline" onClick={onClose} disabled={submitting} className="min-w-[100px]">
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={submitting} className="bg-red-600 hover:bg-red-700 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
+          <Button onClick={handleSubmit} disabled={submitting} className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 min-w-[120px] shadow-sm hover:shadow-md transition-shadow">
             {submitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />

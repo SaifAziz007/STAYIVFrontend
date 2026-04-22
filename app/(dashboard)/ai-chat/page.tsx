@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, Send, Database, MessageSquare, CheckCircle2, AlertCircle } from 'lucide-react';
 import apiClient from '@/lib/api-client';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 interface Property {
   id: string;
@@ -162,6 +163,11 @@ export default function AIChatPage() {
   };
 
   // Suggested questions
+  usePageHeader({
+    title: 'AI Property Assistant',
+    description: "Select a property, index it, then ask questions about the guest experience.",
+  });
+
   const suggestedQuestions = [
     "What's the WiFi password?",
     "How do I check in?",
@@ -175,13 +181,6 @@ export default function AIChatPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">🤖 AI Property Assistant</h1>
-        <p className="text-gray-600">
-          Test the AI's knowledge about your properties. Select a property, index it, and start asking questions!
-        </p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Control Panel */}
         <Card className="lg:col-span-1">
@@ -191,7 +190,7 @@ export default function AIChatPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Select Property</label>
+              <label className="text-sm font-medium text-foreground">Select Property</label>
               <Select value={selectedProperty} onValueChange={handlePropertyChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a property..." />
@@ -233,11 +232,11 @@ export default function AIChatPage() {
                 </Button>
 
                 {isIndexed && (
-                  <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <div className="p-3 bg-green-50 dark:bg-green-950/35 border border-green-200 dark:border-green-900/50 rounded-lg">
                     <p className="text-sm text-green-800 dark:text-green-200 font-medium">
                       ✅ Ready to chat!
                     </p>
-                    <p className="text-xs text-green-600 dark:text-green-300 mt-1">
+                    <p className="text-xs text-green-600 dark:text-green-300/90 mt-1">
                       The AI has been trained on this property's data.
                     </p>
                   </div>
@@ -247,14 +246,15 @@ export default function AIChatPage() {
 
             {/* Suggested Questions */}
             {isIndexed && (
-              <div className="space-y-2 pt-4 border-t">
-                <label className="text-sm font-medium">Suggested Questions</label>
+              <div className="space-y-2 pt-4 border-t border-gray-200 dark:border-border">
+                <label className="text-sm font-medium text-foreground">Suggested Questions</label>
                 <div className="space-y-2">
                   {suggestedQuestions.map((question, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => setInputMessage(question)}
-                      className="w-full text-left text-sm p-2 rounded-md hover:bg-accent transition-colors"
+                      className="w-full text-left text-sm p-2 rounded-md text-foreground hover:bg-accent dark:hover:bg-muted/60 transition-colors"
                     >
                       💬 {question}
                     </button>
@@ -300,7 +300,7 @@ export default function AIChatPage() {
                     className={`max-w-[80%] rounded-lg p-4 ${
                       message.role === 'user'
                         ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted'
+                        : 'bg-muted text-foreground'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-1">
@@ -326,7 +326,7 @@ export default function AIChatPage() {
 
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-muted rounded-lg p-4">
+                  <div className="bg-muted text-muted-foreground rounded-lg p-4">
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
                 </div>

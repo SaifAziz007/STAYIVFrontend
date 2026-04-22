@@ -18,6 +18,7 @@ import {
   type InquiriesListParams,
 } from '@/lib/inquiries-api';
 import { useToast } from '@/hooks/use-toast';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 export default function InquiriesPage() {
   const { toast } = useToast();
@@ -82,18 +83,16 @@ export default function InquiriesPage() {
     }
   };
 
+  usePageHeader({
+    title: 'Inquiries',
+    description: 'Pre-booking inquiries from your channels — search, filter by arrival dates, and sort',
+  });
+
   return (
     <div className="container mx-auto p-6 max-w-7xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
-        <p className="text-gray-600 mt-1">
-          Pre-booking inquiries from your channels — search, filter by arrival dates, and sort
-        </p>
-      </div>
-
-      <Card className="border-gray-200 mb-6">
+        <Card className="border-gray-200 dark:border-border mb-6">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base">Filters</CardTitle>
+          <CardTitle className="text-base text-card-foreground">Filters</CardTitle>
           <CardDescription>Search guests and listings; optional arrival date range</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -113,7 +112,7 @@ export default function InquiriesPage() {
           </form>
           <div className="flex flex-wrap gap-3 items-end">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500">Arrival from</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-neutral-400">Arrival from</label>
               <Input
                 type="date"
                 value={checkInFrom}
@@ -124,7 +123,7 @@ export default function InquiriesPage() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-gray-500">Arrival to</label>
+              <label className="text-xs font-medium text-gray-500 dark:text-neutral-400">Arrival to</label>
               <Input
                 type="date"
                 value={checkInTo}
@@ -156,17 +155,17 @@ export default function InquiriesPage() {
         <div className="flex items-center justify-center min-h-[320px]">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading inquiries…</p>
+            <p className="text-gray-600 dark:text-neutral-400">Loading inquiries…</p>
           </div>
         </div>
       ) : rows.length === 0 ? (
-        <Card className="border-gray-200">
+        <Card className="border-gray-200 dark:border-border">
           <CardContent className="p-16 text-center">
-            <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl inline-flex mb-6">
-              <Inbox className="h-12 w-12 text-slate-600" />
+            <div className="p-4 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-neutral-900 dark:to-neutral-800 rounded-2xl inline-flex mb-6">
+              <Inbox className="h-12 w-12 text-slate-600 dark:text-neutral-300" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">No inquiries</h3>
-            <p className="text-gray-600 max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-2">No inquiries</h3>
+            <p className="text-gray-600 dark:text-neutral-400 max-w-md mx-auto">
               {search || checkInFrom || checkInTo
                 ? 'Try adjusting search or date filters.'
                 : 'Synced inquiries from Hospitable will appear here.'}
@@ -175,20 +174,20 @@ export default function InquiriesPage() {
         </Card>
       ) : (
         <>
-          <Card className="border-gray-200 overflow-hidden">
+          <Card className="border-gray-200 dark:border-border overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-200 bg-gray-50/80">
-                    <th className="text-left p-3 font-semibold text-gray-700">Guest</th>
-                    <th className="text-left p-3 font-semibold text-gray-700">Property</th>
-                    <th className="text-left p-3 font-semibold text-gray-700 min-w-[12rem]">
+                  <tr className="border-b border-gray-200 dark:border-border bg-gray-50/80 dark:bg-card">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">Guest</th>
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">Property</th>
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300 min-w-[12rem]">
                       Guests
                     </th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('arrivalDate')}
                       >
                         Check-in
@@ -199,10 +198,10 @@ export default function InquiriesPage() {
                         )}
                       </button>
                     </th>
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('departureDate')}
                       >
                         Check-out
@@ -217,10 +216,10 @@ export default function InquiriesPage() {
                       Nights
                     </th> */}
                     {/* <th className="text-left p-3 font-semibold text-gray-700">Mood</th> */}
-                    <th className="text-left p-3 font-semibold text-gray-700">
+                    <th className="text-left p-3 font-semibold text-gray-700 dark:text-neutral-300">
                       <button
                         type="button"
-                        className="inline-flex items-center gap-1 hover:text-blue-700"
+                        className="inline-flex items-center gap-1 hover:text-blue-700 dark:hover:text-blue-400"
                         onClick={() => toggleSort('platform')}
                       >
                         Platform
@@ -237,17 +236,17 @@ export default function InquiriesPage() {
                   {rows.map((r) => (
                     <tr
                       key={r.id}
-                      className="border-b border-gray-100 hover:bg-gray-50/60 transition-colors"
+                      className="border-b border-gray-100 dark:border-border/60 hover:bg-gray-50/60 dark:hover:bg-muted/40 transition-colors"
                     >
-                      <td className="p-3 font-medium text-gray-900">{r.guestName}</td>
-                      <td className="p-3 text-gray-700">{r.propertyName ?? '—'}</td>
-                      <td className="p-3 text-left text-gray-700 text-xs leading-snug max-w-[16rem]">
+                      <td className="p-3 font-medium text-gray-900 dark:text-foreground">{r.guestName}</td>
+                      <td className="p-3 text-gray-700 dark:text-neutral-300">{r.propertyName ?? '—'}</td>
+                      <td className="p-3 text-left text-gray-700 dark:text-neutral-300 text-xs leading-snug max-w-[16rem]">
                         {r.guestsSummary}
                       </td>
-                      <td className="p-3 text-gray-700 whitespace-nowrap">
+                      <td className="p-3 text-gray-700 dark:text-neutral-300 whitespace-nowrap">
                         {inquiriesApi.formatDate(r.checkIn)}
                       </td>
-                      <td className="p-3 text-gray-700 whitespace-nowrap">
+                      <td className="p-3 text-gray-700 dark:text-neutral-300 whitespace-nowrap">
                         {inquiriesApi.formatDate(r.checkOut)}
                       </td>
                       {/* <td className="p-3 text-right tabular-nums text-gray-700">
@@ -269,7 +268,7 @@ export default function InquiriesPage() {
           </Card>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-neutral-400">
               Showing {rows.length} of {total} {total === 1 ? 'inquiry' : 'inquiries'}
             </p>
             <div className="flex items-center gap-2">
@@ -283,7 +282,7 @@ export default function InquiriesPage() {
                 <ChevronLeft className="h-4 w-4" />
                 Previous
               </Button>
-              <span className="text-sm text-gray-600 tabular-nums">
+              <span className="text-sm text-gray-600 dark:text-neutral-400 tabular-nums">
                 Page {page} of {Math.max(1, totalPages)}
               </span>
               <Button

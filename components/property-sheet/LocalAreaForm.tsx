@@ -89,7 +89,7 @@ export function LocalAreaForm({ propertyId, initialData, onSave }: LocalAreaForm
           <div className="border-t pt-4">
             <Label className="text-base font-semibold">Nearby Parking Options</Label>
             {parkingFields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-3 p-3 bg-gray-50 rounded-lg">
+              <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 mt-3 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
                 <Input {...register(`parkingOptions.${index}.name`)} placeholder="Lot name" />
                 <Input {...register(`parkingOptions.${index}.location`)} placeholder="Address" />
                 <Input {...register(`parkingOptions.${index}.pricing`)} placeholder="$1/hr" />
@@ -109,7 +109,7 @@ export function LocalAreaForm({ propertyId, initialData, onSave }: LocalAreaForm
           <div className="border-t pt-4">
             <Label className="text-base font-semibold">Street Parking Rules</Label>
             {streetFields.map((field, index) => (
-              <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3 p-3 bg-gray-50 rounded-lg">
+              <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-3 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
                 <Input {...register(`streetParkingRules.${index}.street`)} placeholder="Street name" />
                 <Input {...register(`streetParkingRules.${index}.restriction`)} placeholder="No parking Wed 8AM-6PM" />
                 <div className="flex gap-2">
@@ -138,7 +138,7 @@ export function LocalAreaForm({ propertyId, initialData, onSave }: LocalAreaForm
         </CardHeader>
         <CardContent className="space-y-4">
           {transitFields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 rounded-lg">
+            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
               <Input {...register(`transitStops.${index}.stopName`)} placeholder="Stop name" />
               <Input type="number" {...register(`transitStops.${index}.walkingMinutes`, { valueAsNumber: true })} placeholder="Walk min" />
               <div className="flex gap-2">
@@ -166,7 +166,7 @@ export function LocalAreaForm({ propertyId, initialData, onSave }: LocalAreaForm
         </CardHeader>
         <CardContent className="space-y-4">
           {groceryFields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 rounded-lg">
+            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
               <Input {...register(`groceryStores.${index}.name`)} placeholder="Store name" />
               <Input type="number" {...register(`groceryStores.${index}.walkingMinutes`, { valueAsNumber: true })} placeholder="Walk min" />
               <div className="flex gap-2">
@@ -193,7 +193,7 @@ export function LocalAreaForm({ propertyId, initialData, onSave }: LocalAreaForm
         </CardHeader>
         <CardContent className="space-y-4">
           {restaurantFields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 rounded-lg">
+            <div key={field.id} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
               <Input {...register(`restaurants.${index}.name`)} placeholder="Restaurant name" />
               <Input type="number" {...register(`restaurants.${index}.walkingMinutes`, { valueAsNumber: true })} placeholder="Walk min" />
               <div className="flex gap-2">

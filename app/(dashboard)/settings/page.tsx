@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Check, X, RefreshCw, Link2, Unlink } from 'lucide-react';
 import apiClient from '@/lib/api-client';
 import { authApi } from '@/lib/auth';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 interface ConnectionStatus {
   connected: boolean;
@@ -105,6 +106,11 @@ export default function HospitableSettingsPage() {
     }
   };
 
+  usePageHeader({
+    title: 'Hospitable Integration',
+    description: 'Connect your Hospitable account to automatically sync your properties',
+  });
+
   if (isLoadingStatus) {
     return (
       <div className="container mx-auto py-8 px-4 max-w-4xl">
@@ -117,35 +123,29 @@ export default function HospitableSettingsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">🏠 Hospitable Integration</h1>
-        <p className="text-gray-600">
-          Connect your Hospitable account to automatically sync your properties
+      {authApi.getUser()?.role === 'ADMIN' && (
+        <p className="mb-6">
+          <Link
+            href="/settings/team"
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:underline"
+          >
+            Manage team members →
+          </Link>
         </p>
-        {authApi.getUser()?.role === 'ADMIN' && (
-          <p className="mt-3">
-            <Link
-              href="/settings/team"
-              className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline"
-            >
-              Manage team members →
-            </Link>
-          </p>
-        )}
-      </div>
+      )}
 
       {/* Error Message */}
       {error && (
-        <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start">
-          <X className="h-5 w-5 text-red-600 dark:text-red-400 mr-3 mt-0.5" />
+        <div className="mb-6 p-4 bg-red-50 dark:bg-red-950/35 border border-red-200 dark:border-red-900/50 rounded-lg flex items-start">
+          <X className="h-5 w-5 text-red-600 dark:text-red-400 mr-3 mt-0.5 shrink-0" />
           <p className="text-red-800 dark:text-red-200">{error}</p>
         </div>
       )}
 
       {/* Success Message */}
       {successMessage && (
-        <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg flex items-start">
-          <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-3 mt-0.5" />
+        <div className="mb-6 p-4 bg-green-50 dark:bg-green-950/35 border border-green-200 dark:border-green-900/50 rounded-lg flex items-start">
+          <Check className="h-5 w-5 text-green-600 dark:text-green-400 mr-3 mt-0.5 shrink-0" />
           <p className="text-green-800 dark:text-green-200">{successMessage}</p>
         </div>
       )}
@@ -164,7 +164,7 @@ export default function HospitableSettingsPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="apiToken" className="text-sm font-medium">
+              <label htmlFor="apiToken" className="text-sm font-medium text-foreground">
                 Hospitable API Token
               </label>
               <Input
@@ -203,11 +203,11 @@ export default function HospitableSettingsPage() {
               )}
             </Button>
 
-            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-950/35 border border-blue-200 dark:border-blue-900/50 rounded-lg">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
                 How to get your API token:
               </h4>
-              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-200">
+              <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800 dark:text-blue-200/90">
                 <li>Log in to your Hospitable account</li>
                 <li>Go to Settings → API & Integrations</li>
                 <li>Generate or copy your API token</li>
@@ -220,10 +220,10 @@ export default function HospitableSettingsPage() {
         /* Connected */
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center">
-              <Check className="mr-2 h-5 w-5 text-green-600" />
+            <CardTitle className="flex items-center flex-wrap gap-2">
+              <Check className="mr-2 h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
               Connected to Hospitable
-              <Badge variant="secondary" className="ml-auto">
+              <Badge variant="secondary" className="ml-auto dark:bg-muted dark:text-muted-foreground dark:border-border">
                 Active
               </Badge>
             </CardTitle>
@@ -234,12 +234,12 @@ export default function HospitableSettingsPage() {
           <CardContent className="space-y-6">
             {/* Connection Stats */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-muted rounded-lg">
-                <div className="text-2xl font-bold">{status.propertiesCount}</div>
+              <div className="p-4 bg-muted rounded-lg border border-transparent dark:border-border">
+                <div className="text-2xl font-bold text-foreground">{status.propertiesCount}</div>
                 <div className="text-sm text-muted-foreground">Properties Synced</div>
               </div>
-              <div className="p-4 bg-muted rounded-lg">
-                <div className="text-sm font-medium">Connected At</div>
+              <div className="p-4 bg-muted rounded-lg border border-transparent dark:border-border">
+                <div className="text-sm font-medium text-foreground">Connected At</div>
                 <div className="text-xs text-muted-foreground">
                   {status.connectedAt
                     ? new Date(status.connectedAt).toLocaleString()
@@ -251,15 +251,15 @@ export default function HospitableSettingsPage() {
             {/* Synced Properties List */}
             {status.properties && status.properties.length > 0 && (
               <div className="space-y-2">
-                <h4 className="font-semibold text-sm">Synced Properties</h4>
-                <div className="border rounded-lg divide-y max-h-64 overflow-y-auto">
+                <h4 className="font-semibold text-sm text-foreground">Synced Properties</h4>
+                <div className="border border-gray-200 dark:border-border rounded-lg divide-y divide-gray-200 dark:divide-border max-h-64 overflow-y-auto">
                   {status.properties.map((property) => (
                     <div
                       key={property.id}
-                      className="p-3 flex items-center justify-between hover:bg-muted/50"
+                      className="p-3 flex items-center justify-between gap-3 hover:bg-muted/50"
                     >
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium text-foreground">
                           Property ID: {property.hospitablePropertyId}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -327,11 +327,11 @@ export default function HospitableSettingsPage() {
             </div>
 
             {/* Info Box */}
-            <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+            <div className="p-4 bg-blue-50 dark:bg-blue-950/35 border border-blue-200 dark:border-blue-900/50 rounded-lg">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">
                 Automatic Sync
               </h4>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+              <p className="text-sm text-blue-800 dark:text-blue-200/90">
                 Webhooks are configured to automatically sync changes from Hospitable.
                 When you create, update, or delete a property in Hospitable, it will be
                 automatically reflected here.
@@ -348,7 +348,7 @@ export default function HospitableSettingsPage() {
           <CardDescription>Configure this webhook URL in your Hospitable account</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all">
+          <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all text-foreground border border-transparent dark:border-border">
             {typeof window !== 'undefined'
               ? `${window.location.origin.replace(':3000', ':3001')}/api/webhooks/hospitable`
               : 'Loading...'}

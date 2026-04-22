@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, Zap, RefreshCw, AlertCircle } from 'lucide-react';
 import { conversationsApi } from '@/lib/conversations-api';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 export default function ChatsPage() {
   const router = useRouter();
@@ -50,6 +51,33 @@ export default function ChatsPage() {
     router.push('/chats/all');
   };
 
+  const syncChatsRef = useRef(handleSyncConversations);
+  syncChatsRef.current = handleSyncConversations;
+  const chatsLandingActions = useMemo(
+    () => (
+      <Button onClick={() => void syncChatsRef.current()} disabled={syncing} variant="outline">
+        {syncing ? (
+          <>
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+            Syncing...
+          </>
+        ) : (
+          <>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Sync from Hospitable
+          </>
+        )}
+      </Button>
+    ),
+    [syncing],
+  );
+
+  usePageHeader({
+    title: 'Guest Chats',
+    description: 'View and manage guest inquiries and conversations',
+    actions: chatsLandingActions,
+  });
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -65,32 +93,6 @@ export default function ChatsPage() {
 
   return (
     <div className="container mx-auto p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Guest Chats</h1>
-          <p className="text-gray-600 mt-1">
-            View and manage guest inquiries and conversations
-          </p>
-        </div>
-        <Button 
-          onClick={handleSyncConversations} 
-          disabled={syncing}
-          variant="outline"
-        >
-          {syncing ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Syncing...
-            </>
-          ) : (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Sync from Hospitable
-            </>
-          )}
-        </Button>
-      </div>
-
       {error && (
         <Card className="mb-6 border-red-200 bg-red-50">
           <CardContent className="p-4">

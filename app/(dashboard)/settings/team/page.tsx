@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -30,6 +30,7 @@ import {
   CHAT_SUB_SCREEN_LABELS,
 } from '@/lib/chat-action-permissions';
 import { Loader2, Trash2, Users } from 'lucide-react';
+import { usePageHeader } from '@/components/layout/page-header-context';
 
 type ScreenRow = { key: AppScreenKey; label: string };
 
@@ -167,23 +168,23 @@ export default function TeamSettingsPage() {
 
   const conversationsOn = permDraft.CONVERSATIONS === true;
 
-  return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Users className="h-7 w-7 text-blue-600" />
-            Team
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Create users and assign which screens they can open.
-          </p>
-        </div>
-        <Button type="button" onClick={() => setCreateOpen(true)}>
-          Add user
-        </Button>
-      </div>
+  const teamHeaderActions = useMemo(
+    () => (
+      <Button type="button" onClick={() => setCreateOpen(true)}>
+        Add user
+      </Button>
+    ),
+    [],
+  );
 
+  usePageHeader({
+    title: 'Team',
+    description: 'Create users and assign which screens they can open.',
+    actions: teamHeaderActions,
+  });
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6 px-4 py-6 md:px-6">
       <Card>
         <CardHeader>
           <CardTitle>Users</CardTitle>
@@ -191,16 +192,16 @@ export default function TeamSettingsPage() {
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="flex justify-center py-12 text-gray-500">
+            <div className="flex justify-center py-12 text-gray-500 dark:text-muted-foreground">
               <Loader2 className="h-8 w-8 animate-spin" />
             </div>
           ) : users.length === 0 ? (
-            <p className="text-gray-600 py-8 text-center">No team members yet.</p>
+            <p className="text-gray-600 dark:text-muted-foreground py-8 text-center">No team members yet.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b text-left text-gray-600">
+                  <tr className="border-b border-gray-200 dark:border-border text-left text-gray-600 dark:text-muted-foreground">
                     <th className="pb-2 pr-4">Name</th>
                     <th className="pb-2 pr-4">Email</th>
                     <th className="pb-2 pr-4">Status</th>
@@ -209,16 +210,16 @@ export default function TeamSettingsPage() {
                 </thead>
                 <tbody>
                   {users.map((u) => (
-                    <tr key={u.id} className="border-b border-gray-100">
-                      <td className="py-3 pr-4 font-medium">{u.name}</td>
-                      <td className="py-3 pr-4 text-gray-700">{u.email}</td>
+                    <tr key={u.id} className="border-b border-gray-100 dark:border-border">
+                      <td className="py-3 pr-4 font-medium text-foreground">{u.name}</td>
+                      <td className="py-3 pr-4 text-gray-700 dark:text-muted-foreground">{u.email}</td>
                       <td className="py-3 pr-4">
-                        <label className="inline-flex items-center gap-2 cursor-pointer">
+                        <label className="inline-flex items-center gap-2 cursor-pointer text-foreground">
                           <input
                             type="checkbox"
                             checked={u.isActive}
                             onChange={() => toggleActive(u)}
-                            className="rounded border-gray-300"
+                            className="rounded border-gray-300 dark:border-border dark:bg-background"
                           />
                           <span>{u.isActive ? 'Active' : 'Inactive'}</span>
                         </label>
@@ -236,7 +237,7 @@ export default function TeamSettingsPage() {
                           type="button"
                           variant="outline"
                           size="sm"
-                          className="text-red-600"
+                          className="text-red-600 dark:text-red-400 dark:border-red-900/50 dark:hover:bg-red-950/35"
                           onClick={() => setDeleteId(u.id)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -261,21 +262,21 @@ export default function TeamSettingsPage() {
               <Label htmlFor="team-name">Name</Label>
               <Input id="team-name" {...register('name')} />
               {errors.name && (
-                <p className="text-sm text-red-600">{errors.name.message}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{errors.name.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="team-email">Email</Label>
               <Input id="team-email" type="email" {...register('email')} />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
               )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="team-password">Password</Label>
               <Input id="team-password" type="password" {...register('password')} />
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
               )}
             </div>
             <DialogFooter>
@@ -299,28 +300,28 @@ export default function TeamSettingsPage() {
             {STANDALONE_SCREENS.map(({ key, label }) => {
               if (key === 'CONVERSATIONS') {
                 return (
-                  <div key={key} className="rounded-lg border border-gray-100 overflow-hidden">
-                    <label className="flex items-center justify-between gap-4 px-3 py-2 bg-gray-50/80">
-                      <span className="text-sm font-medium text-gray-900">{label}</span>
+                  <div key={key} className="rounded-lg border border-gray-200 dark:border-border overflow-hidden">
+                    <label className="flex items-center justify-between gap-4 px-3 py-2 bg-gray-50/80 dark:bg-muted/60">
+                      <span className="text-sm font-medium text-gray-900 dark:text-foreground">{label}</span>
                       <input
                         type="checkbox"
                         checked={permDraft.CONVERSATIONS === true}
                         onChange={(e) => setConversations(e.target.checked)}
-                        className="rounded border-gray-300"
+                        className="rounded border-gray-300 dark:border-border dark:bg-background shrink-0"
                       />
                     </label>
-                    <div className="px-3 py-2 space-y-2 border-t border-gray-100 bg-white">
-                      <p className="text-xs text-gray-500 mb-1">
+                    <div className="px-3 py-2 space-y-2 border-t border-gray-200 dark:border-border bg-card">
+                      <p className="text-xs text-gray-500 dark:text-muted-foreground mb-1">
                         Actions on reservation cards (only if Chats is enabled)
                       </p>
                       {CHAT_SUB_SCREEN_KEYS.map((subKey) => (
                         <label
                           key={subKey}
-                          className={`flex items-center justify-between gap-4 rounded-md border border-gray-100 px-3 py-2 pl-4 ${
+                          className={`flex items-center justify-between gap-4 rounded-md border border-gray-200 dark:border-border px-3 py-2 pl-4 ${
                             !conversationsOn ? 'opacity-50' : ''
                           }`}
                         >
-                          <span className="text-sm text-gray-700">
+                          <span className="text-sm text-gray-700 dark:text-muted-foreground">
                             {CHAT_SUB_SCREEN_LABELS[subKey]}
                           </span>
                           <input
@@ -333,7 +334,7 @@ export default function TeamSettingsPage() {
                                 [subKey]: e.target.checked,
                               }))
                             }
-                            className="rounded border-gray-300"
+                            className="rounded border-gray-300 dark:border-border dark:bg-background shrink-0"
                           />
                         </label>
                       ))}
@@ -345,11 +346,11 @@ export default function TeamSettingsPage() {
               return (
                 <label
                   key={key}
-                  className={`flex items-center justify-between gap-4 rounded-lg border border-gray-100 px-3 py-2 ${
+                  className={`flex items-center justify-between gap-4 rounded-lg border border-gray-200 dark:border-border px-3 py-2 ${
                     key === 'USER_MANAGEMENT' ? 'opacity-50' : ''
                   }`}
                 >
-                  <span className="text-sm text-gray-800">{label}</span>
+                  <span className="text-sm text-gray-800 dark:text-foreground">{label}</span>
                   <input
                     type="checkbox"
                     disabled={key === 'USER_MANAGEMENT'}
@@ -360,7 +361,7 @@ export default function TeamSettingsPage() {
                         [key]: e.target.checked,
                       }))
                     }
-                    className="rounded border-gray-300"
+                    className="rounded border-gray-300 dark:border-border dark:bg-background shrink-0"
                   />
                 </label>
               );
@@ -382,7 +383,7 @@ export default function TeamSettingsPage() {
           <DialogHeader>
             <DialogTitle>Delete user?</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600">This cannot be undone.</p>
+          <p className="text-sm text-gray-600 dark:text-muted-foreground">This cannot be undone.</p>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setDeleteId(null)}>
               Cancel

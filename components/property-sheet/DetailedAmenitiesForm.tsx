@@ -315,7 +315,7 @@ export function DetailedAmenitiesForm({ propertyId, initialData, onSave }: Detai
         </CardHeader>
         <CardContent className="space-y-4">
           {bedFields.map((field, index) => (
-            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 bg-gray-50 rounded-lg">
+            <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-2 p-3 bg-gray-50 dark:bg-muted rounded-lg border border-transparent dark:border-border/60">
               <Input {...register(`bedConfigurations.${index}.room`)} placeholder="Room name" />
               <Select
                 value={watch(`bedConfigurations.${index}.bedType`)}
