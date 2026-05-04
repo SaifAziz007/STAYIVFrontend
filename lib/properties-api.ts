@@ -109,6 +109,65 @@ export const propertySheetsApi = {
   },
 };
 
+export interface ExcelColumn {
+  columnIndex: number;
+  label: string;
+  unit?: string;
+  address?: string;
+}
+
+export interface AutoMatchResult {
+  column: ExcelColumn;
+  matchedPropertyId?: string;
+  matchedPropertyName?: string;
+  confidence: number;
+}
+
+export interface ImportMatch {
+  columnIndex: number;
+  propertyId: string;
+}
+
+export interface ImportResult {
+  propertyId: string;
+  propertyName: string;
+  columnLabel: string;
+  status: 'success' | 'failed';
+  modulesUpdated: number;
+  error?: string;
+  extractedData?: any;
+}
+
+export interface BulkImportParseResponse {
+  columns: ExcelColumn[];
+  autoMatches: AutoMatchResult[];
+  fileData: string;
+}
+
+export interface BulkImportExecuteResponse {
+  results: ImportResult[];
+  summary: { total: number; success: number; failed: number };
+}
+
+export const bulkImportApi = {
+  async parseColumns(file: File): Promise<BulkImportParseResponse> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post('/property-sheets/bulk-import/parse', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return response.data;
+  },
+
+  async execute(fileData: string, matches: ImportMatch[]): Promise<BulkImportExecuteResponse> {
+    const response = await apiClient.post('/property-sheets/bulk-import/execute', {
+      fileData,
+      matches,
+    });
+    return response.data;
+  },
+};
+
 export const aiApi = {
   async indexProperty(propertyId: string) {
     const response = await apiClient.post(`/ai/properties/${propertyId}/index`);
