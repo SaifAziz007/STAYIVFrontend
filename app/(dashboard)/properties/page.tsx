@@ -6,14 +6,16 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { propertiesApi, Property } from '@/lib/properties-api';
-import { PlusCircle, Home, Trash2 } from 'lucide-react';
+import { PlusCircle, Home, Trash2, Upload } from 'lucide-react';
 import { usePageHeader } from '@/components/layout/page-header-context';
+import { BulkImportModal } from '@/components/property-sheet/BulkImportModal';
 
 export default function PropertiesPage() {
   const router = useRouter();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
 
   useEffect(() => {
     loadProperties();
@@ -57,10 +59,20 @@ export default function PropertiesPage() {
   createPropertyRef.current = handleCreateProperty;
   const propertiesHeaderActions = useMemo(
     () => (
-      <Button onClick={() => void createPropertyRef.current()} disabled={creating} className="gap-2 shadow-sm">
-        <PlusCircle className="h-4 w-4" />
-        {creating ? 'Creating...' : 'Add Property'}
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          onClick={() => setBulkImportOpen(true)}
+          className="gap-2 shadow-sm"
+        >
+          <Upload className="h-4 w-4" />
+          Bulk Import
+        </Button>
+        <Button onClick={() => void createPropertyRef.current()} disabled={creating} className="gap-2 shadow-sm">
+          <PlusCircle className="h-4 w-4" />
+          {creating ? 'Creating...' : 'Add Property'}
+        </Button>
+      </div>
     ),
     [creating],
   );
@@ -81,6 +93,12 @@ export default function PropertiesPage() {
 
   return (
     <div className="max-w-6xl mx-auto">
+      <BulkImportModal
+        open={bulkImportOpen}
+        onClose={() => setBulkImportOpen(false)}
+        properties={properties}
+        onImportComplete={loadProperties}
+      />
       {properties.length === 0 ? (
         <Card className="border-gray-200">
           <CardContent className="flex flex-col items-center justify-center py-20">
