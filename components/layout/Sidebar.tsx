@@ -20,6 +20,8 @@ import {
   Users,
   CalendarDays,
   Inbox,
+  MessagesSquare,
+  Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authApi, canViewScreen, type User } from '@/lib/auth';
@@ -29,7 +31,9 @@ type MenuItem = {
   name: string;
   href: string;
   icon: typeof LayoutDashboard;
-  screen: AppScreenKey;
+  // Items without a screen are always visible to any authenticated team member
+  // (e.g. Team Chat — an internal communication tool everyone should have).
+  screen?: AppScreenKey;
   adminOnly?: boolean;
 };
 
@@ -40,6 +44,8 @@ const menuItems: MenuItem[] = [
   { name: 'Reservations', href: '/reservations', icon: CalendarDays, screen: 'RESERVATIONS' },
   { name: 'Inquiries', href: '/inquiries', icon: Inbox, screen: 'INQUIRIES' },
   { name: 'Chats', href: '/chats/all', icon: MessageCircle, screen: 'CONVERSATIONS' },
+  { name: 'Team Chat', href: '/team-chat', icon: MessagesSquare },
+  { name: 'Ask AI', href: '/ai-assistant', icon: Bot },
   { name: 'Cleaning', href: '/cleaning', icon: Sparkles, screen: 'CLEANING' },
   { name: 'Claimed Chats', href: '/claimed-chats', icon: Flag, screen: 'CLAIMED_CHATS' },
   { name: 'Review/Removal', href: '/review-removal', icon: AlertTriangle, screen: 'REVIEW_REMOVAL' },
@@ -69,6 +75,9 @@ export default function Sidebar() {
     return menuItems.filter((item) => {
       if (item.adminOnly && user.role !== 'ADMIN') {
         return false;
+      }
+      if (!item.screen) {
+        return true;
       }
       return canViewScreen(user, item.screen);
     });
