@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, MessageCircle, Calendar, Users, MapPin, RefreshCw, AlertCircle, Flag, AlertTriangle, Search, Home, FileText, DollarSign, Upload } from 'lucide-react';
-import { conversationsApi, type Conversation, type ReservationConversation, type InquiryConversation } from '@/lib/conversations-api';
+import { conversationsApi, type Conversation, type ReservationConversation, type InquiryConversation, type MoodStats } from '@/lib/conversations-api';
 import ClaimChatModal from '@/components/claim-chat-modal';
 import { cn } from '@/lib/utils';
 import { claimedChatsApi } from '@/lib/claimed-chats-api';
@@ -48,82 +48,117 @@ export default function AllChatsPage() {
   const [selectedMoods, setSelectedMoods] = useState<string[]>([]);
   const [showEarlyCheckin, setShowEarlyCheckin] = useState(false);  // Add this
   const [showLateCheckout, setShowLateCheckout] = useState(false);  // Add this
+  const [currentPage, setCurrentPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [moodStats, setMoodStats] = useState<MoodStats | null>(null);
+  const PAGE_SIZE = 20;
 
-  // Get mood statistics
-  const getMoodStats = () => {
-    const moodCounts: Record<string, number> = {};
+  // Mood chips grouped by display label (backend returns raw mood strings).
+  const moodLabelStats = useMemo(() => {
+    const map = new Map<
+      string,
+      { label: string; count: number; rawMoods: string[] }
+    >();
+    for (const { mood, count } of moodStats?.moods ?? []) {
+      const config = getMoodConfig(mood);
+      if (!config) continue;
+      const entry = map.get(config.label) ?? { label: config.label, count: 0, rawMoods: [] };
+      entry.count += count;
+      entry.rawMoods.push(mood);
+      map.set(config.label, entry);
+    }
+    return Array.from(map.values()).sort((a, b) => b.count - a.count);
+  }, [moodStats]);
 
-    conversations
-      .filter(c => c.type === 'reservation')
-      .forEach(conversation => {
-        const reservation = conversation as ReservationConversation;
-        if (reservation.mood) {
-          const moodConfig = getMoodConfig(reservation.mood);
-          if (moodConfig) {
-            const moodKey = moodConfig.label;
-            moodCounts[moodKey] = (moodCounts[moodKey] || 0) + 1;
-          }
-        }
-      });
+  // Raw mood strings for the currently selected mood labels (sent to the server).
+  const selectedRawMoods = useMemo(
+    () =>
+      moodLabelStats
+        .filter((m) => selectedMoods.includes(m.label))
+        .flatMap((m) => m.rawMoods),
+    [moodLabelStats, selectedMoods],
+  );
 
-    return Object.entries(moodCounts)
-      .map(([mood, count]) => ({ mood, count }))
-      .sort((a, b) => b.count - a.count);
-  };
-
-  useEffect(() => {
-    loadConversations();
+  const loadMoodStats = useCallback(async () => {
+    try {
+      setMoodStats(await conversationsApi.getMoodStats());
+    } catch (err) {
+      console.error('Failed to load mood stats:', err);
+    }
   }, []);
 
   useEffect(() => {
     setViewer(authApi.getUser());
   }, []);
 
-  const loadConversations = async () => {
+  // Load mood/tab stats once on mount (and re-load after a sync completes).
+  useEffect(() => {
+    void loadMoodStats();
+  }, [loadMoodStats]);
+
+  // (Re)load the current page whenever the tab, filters or page change.
+  const loadConversations = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Load conversations
-      const conversationsResponse = await conversationsApi.getConversations(1, 100);
-      const conversations = conversationsResponse.data;
-      setConversations(conversations);
+      const type =
+        activeTab === 'reservations'
+          ? 'reservation'
+          : activeTab === 'inquiries'
+            ? 'inquiry'
+            : undefined;
 
-      // Load all reservation IDs in parallel
-      try {
-        const [claimedIds, reviewIds, lostFoundIds, issueIds, paymentIds, formIds] = await Promise.all([
-          claimedChatsApi.getClaimedReservationIds().catch(() => []),
-          reviewRemovalApi.getReviewRemovalReservationIds().catch(() => []),
-          lostAndFoundApi.getLostAndFoundReservationIds().catch(() => []),
-          issuesApi.getIssueReservationIds().catch(() => []),
-          pendingPaymentsApi.getPaymentReservationIds().catch(() => []),
-          formCollectionApi.getFormCollectionReservationIds().catch(() => [])
-        ]);
-
-        setClaimedReservationIds(claimedIds || []);
-        setReviewRemovalReservationIds(reviewIds || []);
-        setLostAndFoundReservationIds(lostFoundIds || []);
-        setIssuesReservationIds(issueIds || []);
-        setPaymentReservationIds(paymentIds || []);
-        setFormCollectionReservationIds(formIds || []);
-      } catch (error) {
-        console.error('Failed to load reservation IDs:', error);
-        // Set empty arrays if loading fails
-        setClaimedReservationIds([]);
-        setReviewRemovalReservationIds([]);
-        setLostAndFoundReservationIds([]);
-        setIssuesReservationIds([]);
-        setPaymentReservationIds([]);
-        setFormCollectionReservationIds([]);
-      }
-
+      const res = await conversationsApi.getConversations(currentPage, PAGE_SIZE, type, {
+        moods: selectedRawMoods.length ? selectedRawMoods : undefined,
+        earlyCheckin: showEarlyCheckin,
+        lateCheckout: showLateCheckout,
+      });
+      setConversations(res.data);
+      setTotal(res.pagination.total ?? res.data.length);
     } catch (error: any) {
       console.error('Failed to load conversations:', error);
       setError('Failed to load conversations. Please try again.');
     } finally {
       setLoading(false);
     }
-  };
+  }, [activeTab, currentPage, selectedRawMoods, showEarlyCheckin, showLateCheckout]);
+
+  useEffect(() => {
+    void loadConversations();
+  }, [loadConversations]);
+
+  // Reset to the first page whenever the tab or filters change.
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, selectedMoods, showEarlyCheckin, showLateCheckout]);
+
+  // Load the reservation-action id lists once (used to badge action buttons).
+  const loadActionIds = useCallback(async () => {
+    try {
+      const [claimedIds, reviewIds, lostFoundIds, issueIds, paymentIds, formIds] = await Promise.all([
+        claimedChatsApi.getClaimedReservationIds().catch(() => []),
+        reviewRemovalApi.getReviewRemovalReservationIds().catch(() => []),
+        lostAndFoundApi.getLostAndFoundReservationIds().catch(() => []),
+        issuesApi.getIssueReservationIds().catch(() => []),
+        pendingPaymentsApi.getPaymentReservationIds().catch(() => []),
+        formCollectionApi.getFormCollectionReservationIds().catch(() => []),
+      ]);
+      setClaimedReservationIds(claimedIds || []);
+      setReviewRemovalReservationIds(reviewIds || []);
+      setLostAndFoundReservationIds(lostFoundIds || []);
+      setIssuesReservationIds(issueIds || []);
+      setPaymentReservationIds(paymentIds || []);
+      setFormCollectionReservationIds(formIds || []);
+    } catch (error) {
+      console.error('Failed to load reservation IDs:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadActionIds();
+  }, [loadActionIds]);
+
   // Helper functions to check if a conversation has been actioned
   const isConversationClaimed = (conversation: Conversation): boolean => {
     if (conversation.type === 'reservation') {
@@ -293,7 +328,9 @@ export default function AllChatsPage() {
     start: startSync,
   } = useConversationSync({
     onComplete: () => {
-      void loadConversations(); // Reload once the background sync finishes
+      // Reload the list and the aggregate stats once the sync finishes.
+      void loadConversations();
+      void loadMoodStats();
     },
   });
 
@@ -344,52 +381,8 @@ export default function AllChatsPage() {
   };
 
 
-  const getFilteredConversations = () => {
-    let filtered = conversations;
-
-    // Filter by tab
-    switch (activeTab) {
-      case 'reservations':
-        filtered = filtered.filter(conv => conv.type === 'reservation');
-        break;
-      case 'inquiries':
-        filtered = filtered.filter(conv => conv.type === 'inquiry');
-        break;
-      default:
-        break;
-    }
-
-    // Filter by mood (only for reservations)
-    if (selectedMoods.length > 0) {
-      filtered = filtered.filter(conversation => {
-        if (conversation.type !== 'reservation') return true;
-
-        const reservation = conversation as ReservationConversation;
-        if (!reservation.mood) return false;
-
-        const moodConfig = getMoodConfig(reservation.mood);
-        return moodConfig && selectedMoods.includes(moodConfig.label);
-      });
-    }
-
-    // Filter by early check-in
-    if (showEarlyCheckin) {
-      filtered = filtered.filter(conversation => {
-        if (conversation.type !== 'reservation') return false;
-        return (conversation as ReservationConversation).earlyCheckin === true;
-      });
-    }
-
-    // Filter by late check-out
-    if (showLateCheckout) {
-      filtered = filtered.filter(conversation => {
-        if (conversation.type !== 'reservation') return false;
-        return (conversation as ReservationConversation).lateCheckout === true;
-      });
-    }
-
-    return filtered;
-  };
+  // Filtering + pagination now happen server-side; `conversations` is already
+  // the filtered page for the active tab.
 
 
 
@@ -622,6 +615,42 @@ export default function AllChatsPage() {
     );
   }
 
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const renderPagination = () => {
+    if (total <= PAGE_SIZE) return null;
+    const start = (currentPage - 1) * PAGE_SIZE + 1;
+    const end = Math.min(currentPage * PAGE_SIZE, total);
+    return (
+      <div className="flex items-center justify-between mt-6">
+        <p className="text-sm text-gray-600 dark:text-muted-foreground">
+          Showing {start}–{end} of {total}
+        </p>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage <= 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-gray-700 dark:text-foreground px-2">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={currentPage >= totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto p-6">
       {error && (
@@ -705,9 +734,7 @@ export default function AllChatsPage() {
                           : "bg-gray-200 dark:bg-secondary text-gray-600 dark:text-neutral-300 border-0"
                       )}
                     >
-                      {conversations.filter(c =>
-                        c.type === 'reservation' && (c as ReservationConversation).earlyCheckin
-                      ).length}
+                      {moodStats?.earlyCheckin ?? 0}
                     </Badge>
                   </div>
 
@@ -741,9 +768,7 @@ export default function AllChatsPage() {
                           : "bg-gray-200 dark:bg-secondary text-gray-600 dark:text-neutral-300 border-0"
                       )}
                     >
-                      {conversations.filter(c =>
-                        c.type === 'reservation' && (c as ReservationConversation).lateCheckout
-                      ).length}
+                      {moodStats?.lateCheckout ?? 0}
                     </Badge>
                   </div>
                 </div>
@@ -755,9 +780,9 @@ export default function AllChatsPage() {
                   <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-neutral-400">Filter by Mood</h3>
                 </div>
                 <div className="p-3 space-y-2 max-h-[400px] overflow-y-auto">
-                  {getMoodStats().map(({ mood, count }) => {
+                  {moodLabelStats.map(({ label: mood, count, rawMoods }) => {
                     const isSelected = selectedMoods.includes(mood);
-                    const moodConfig = getMoodConfig(mood.toLowerCase());
+                    const moodConfig = getMoodConfig(rawMoods[0]);
 
                     return (
                       <div
@@ -802,7 +827,7 @@ export default function AllChatsPage() {
                     );
                   })}
 
-                  {getMoodStats().length === 0 && (
+                  {moodLabelStats.length === 0 && (
                     <div className="text-center py-8">
                       <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-muted flex items-center justify-center mx-auto mb-3">
                         <svg className="h-6 w-6 text-gray-400 dark:text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -826,19 +851,19 @@ export default function AllChatsPage() {
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all">
-                All ({conversations.length})
+                All ({(moodStats?.totals.reservations ?? 0) + (moodStats?.totals.inquiries ?? 0)})
               </TabsTrigger>
               <TabsTrigger value="reservations">
-                Reservations ({conversations.filter(c => c.type === 'reservation').length})
+                Reservations ({moodStats?.totals.reservations ?? 0})
               </TabsTrigger>
               <TabsTrigger value="inquiries">
-                Inquiries ({conversations.filter(c => c.type === 'inquiry').length})
+                Inquiries ({moodStats?.totals.inquiries ?? 0})
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="all" className="mt-6">
               <div className="space-y-4">
-                {getFilteredConversations().length === 0 ? (
+                {conversations.length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
@@ -851,14 +876,17 @@ export default function AllChatsPage() {
                     </CardContent>
                   </Card>
                 ) : (
-                  getFilteredConversations().map(renderConversationCard)
+                  <>
+                    {conversations.map(renderConversationCard)}
+                    {renderPagination()}
+                  </>
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="reservations" className="mt-6">
               <div className="space-y-4">
-                {getFilteredConversations().length === 0 ? (
+                {conversations.length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
@@ -871,14 +899,17 @@ export default function AllChatsPage() {
                     </CardContent>
                   </Card>
                 ) : (
-                  getFilteredConversations().map(renderConversationCard)
+                  <>
+                    {conversations.map(renderConversationCard)}
+                    {renderPagination()}
+                  </>
                 )}
               </div>
             </TabsContent>
 
             <TabsContent value="inquiries" className="mt-6">
               <div className="space-y-4">
-                {getFilteredConversations().length === 0 ? (
+                {conversations.length === 0 ? (
                   <Card>
                     <CardContent className="p-8 text-center">
                       <MessageCircle className="h-12 w-12 text-gray-400 dark:text-neutral-500 mx-auto mb-4" />
@@ -889,7 +920,10 @@ export default function AllChatsPage() {
                     </CardContent>
                   </Card>
                 ) : (
-                  getFilteredConversations().map(renderConversationCard)
+                  <>
+                    {conversations.map(renderConversationCard)}
+                    {renderPagination()}
+                  </>
                 )}
               </div>
             </TabsContent>

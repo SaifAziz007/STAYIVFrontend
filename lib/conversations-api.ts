@@ -85,6 +85,7 @@ export interface ConversationsResponse {
     page: number;
     limit: number;
     total: number;
+    totalPages?: number;
   };
 }
 
@@ -100,6 +101,19 @@ export interface ConversationDetailsResponse {
 export interface MessagesResponse {
   success: boolean;
   data: ConversationMessage[];
+}
+
+export interface ConversationFilters {
+  moods?: string[]; // raw stored mood strings
+  earlyCheckin?: boolean;
+  lateCheckout?: boolean;
+}
+
+export interface MoodStats {
+  moods: { mood: string; count: number }[];
+  earlyCheckin: number;
+  lateCheckout: number;
+  totals: { reservations: number; inquiries: number };
 }
 
 export type SyncPhase =
@@ -195,15 +209,48 @@ async getReservationsByCheckout(date: string): Promise<ReservationConversation[]
   async getConversations(
     page: number = 1,
     limit: number = 20,
-    type?: 'reservation' | 'inquiry'
+    type?: 'reservation' | 'inquiry',
+    filters?: ConversationFilters,
   ): Promise<ConversationsResponse> {
     const params: any = { page, limit };
-    if (type) {
-      params.type = type;
-    }
+    if (type) params.type = type;
+    if (filters?.moods && filters.moods.length > 0) params.moods = filters.moods.join(',');
+    if (filters?.earlyCheckin) params.earlyCheckin = 'true';
+    if (filters?.lateCheckout) params.lateCheckout = 'true';
 
     const response = await apiClient.get('/conversations', { params });
     return response.data;
+  },
+
+  /**
+   * Mood + special-request stats across ALL reservations (server-aggregated),
+   * for the filter sidebar and tab counts. `moods` are raw stored mood strings.
+   */
+  async getMoodStats(): Promise<MoodStats> {
+    const response = await apiClient.get('/conversations/mood-stats');
+    return response.data.data;
+  },
+
+  /**
+   * Fetch the full set of conversations (all pages) so the UI can do accurate
+   * client-side filtering, mood stats and pagination. Loops using the real
+   * `total` returned by the backend.
+   */
+  async getAllConversations(
+    type?: 'reservation' | 'inquiry',
+    pageSize: number = 2000,
+  ): Promise<Conversation[]> {
+    const all: Conversation[] = [];
+    let page = 1;
+    // Hard cap on iterations as a safety net against an unexpected total.
+    for (let i = 0; i < 100; i++) {
+      const res = await this.getConversations(page, pageSize, type);
+      all.push(...res.data);
+      const total = res.pagination.total ?? all.length;
+      if (all.length >= total || res.data.length === 0) break;
+      page++;
+    }
+    return all;
   },
 
   /**
