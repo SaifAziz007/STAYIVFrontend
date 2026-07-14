@@ -8,18 +8,13 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Zap, RefreshCw, AlertCircle } from 'lucide-react';
 import { conversationsApi } from '@/lib/conversations-api';
 import { usePageHeader } from '@/components/layout/page-header-context';
+import { useConversationSync } from '@/hooks/useConversationSync';
+import { SyncProgress } from '@/components/chats/sync-progress';
 
 export default function ChatsPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [conversationCount, setConversationCount] = useState(0);
-
-  useEffect(() => {
-    loadConversationCount();
-    setLoading(false);
-  }, []);
 
   const loadConversationCount = async () => {
     try {
@@ -30,21 +25,17 @@ export default function ChatsPage() {
     }
   };
 
-  const handleSyncConversations = async () => {
-    try {
-      setSyncing(true);
-      setError(null);
-      
-      await conversationsApi.syncConversations();
-      await loadConversationCount(); // Reload count after sync
-      
-      console.log('Conversations synced successfully');
-    } catch (error) {
-      console.error('Error syncing conversations:', error);
-      setError('Failed to sync conversations. Please try again.');
-    } finally {
-      setSyncing(false);
-    }
+  const { syncing, job, counts, error, start } = useConversationSync({
+    onComplete: loadConversationCount,
+  });
+
+  useEffect(() => {
+    loadConversationCount();
+    setLoading(false);
+  }, []);
+
+  const handleSyncConversations = () => {
+    void start();
   };
 
   const handleViewAllConversations = () => {
@@ -103,6 +94,8 @@ export default function ChatsPage() {
           </CardContent>
         </Card>
       )}
+
+      <SyncProgress job={job} counts={counts} syncing={syncing} />
 
       <Card className="mb-6">
         <CardContent className="p-6">

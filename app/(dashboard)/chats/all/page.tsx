@@ -25,6 +25,8 @@ import { CHAT_ACTION_TO_SCREEN } from '@/lib/chat-action-permissions';
 import { usePageHeader } from '@/components/layout/page-header-context';
 import { getMoodConfig } from '@/lib/chat-mood-config';
 import { resolvePropertyNameFromReservation } from '@/lib/reservation-property-display';
+import { useConversationSync } from '@/hooks/useConversationSync';
+import { SyncProgress } from '@/components/chats/sync-progress';
 
 
 export default function AllChatsPage() {
@@ -32,7 +34,6 @@ export default function AllChatsPage() {
   const [viewer, setViewer] = useState<User | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [syncing, setSyncing] = useState(false);
   const [activeTab, setActiveTab] = useState<'all' | 'reservations' | 'inquiries'>('all');
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
@@ -285,32 +286,19 @@ export default function AllChatsPage() {
     setShowModal(true);
   };
 
-  const handleSyncConversations = async () => {
-    try {
-      setSyncing(true);
-      setError(null);
+  const {
+    syncing,
+    job: syncJob,
+    counts: syncCounts,
+    start: startSync,
+  } = useConversationSync({
+    onComplete: () => {
+      void loadConversations(); // Reload once the background sync finishes
+    },
+  });
 
-      const syncResult = await conversationsApi.syncConversations();
-      console.log('Sync result:', syncResult);
-
-      await loadConversations(); // Reload after sync
-
-      // Show success message with counts
-      if (syncResult.data?.synced) {
-        const { reservations, inquiries, messages } = syncResult.data.synced;
-        console.log(`Sync completed: ${reservations} reservations, ${inquiries} inquiries, ${messages} messages`);
-
-        if (reservations === 0 && inquiries === 0) {
-          setError('Sync completed but no conversations were found. This might be because all your conversations are older than 6 months or in the future beyond 2 years.');
-        }
-      }
-    } catch (error: any) {
-      console.error('Error syncing conversations:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to sync conversations. Please try again.';
-      setError(errorMessage);
-    } finally {
-      setSyncing(false);
-    }
+  const handleSyncConversations = () => {
+    void startSync();
   };
 
   const syncConversationsRef = useRef(handleSyncConversations);
@@ -646,6 +634,8 @@ export default function AllChatsPage() {
           </CardContent>
         </Card>
       )}
+
+      <SyncProgress job={syncJob} counts={syncCounts} syncing={syncing} />
 
       <div className="flex gap-6">
         {/* Enhanced Filter Sidebar */}

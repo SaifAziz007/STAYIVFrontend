@@ -86,7 +86,7 @@ export default function Sidebar() {
   // Same structure for SSR + first client paint: no localStorage until mounted
   if (!mounted) {
     return (
-      <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border min-h-screen fixed left-0 top-16 shadow-sm transition-colors duration-200">
+      <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16 shadow-sm transition-colors duration-200">
         <nav className="p-3 space-y-1" aria-busy="true" aria-label="Loading navigation">
           {menuItems.map((item) => (
             <div
@@ -100,7 +100,7 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border min-h-screen fixed left-0 top-16 shadow-sm transition-colors duration-200">
+    <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16 shadow-sm transition-colors duration-200">
       <nav className="p-3 space-y-1">
         {visible.map((item) => {
           const Icon = item.icon;

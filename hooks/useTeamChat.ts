@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { TeamMessage } from '@/lib/team-chat-api';
+import { getSocketBaseUrl } from '@/lib/socket-url';
 
 interface ConversationUpdate {
   conversationId: string;
@@ -29,8 +30,8 @@ export function useTeamChat({ userId, onConversationUpdate }: UseTeamChatOptions
   useEffect(() => {
     if (!userId) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    const newSocket = io(`${apiUrl}/team-chat`, {
+    const baseUrl = getSocketBaseUrl();
+    const newSocket = io(`${baseUrl}/team-chat`, {
       transports: ['websocket', 'polling'],
       timeout: 20000,
       forceNew: true,
@@ -39,6 +40,11 @@ export function useTeamChat({ userId, onConversationUpdate }: UseTeamChatOptions
     newSocket.on('connect', () => {
       setIsConnected(true);
       newSocket.emit('join-team-chat', { userId });
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.error('Team chat socket connection error:', err.message);
+      setIsConnected(false);
     });
 
     newSocket.on('disconnect', () => setIsConnected(false));

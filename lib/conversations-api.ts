@@ -102,6 +102,49 @@ export interface MessagesResponse {
   data: ConversationMessage[];
 }
 
+export type SyncPhase =
+  | 'starting'
+  | 'properties'
+  | 'reservations'
+  | 'inquiries'
+  | 'messages'
+  | 'moods'
+  | 'done';
+
+export interface SyncJob {
+  status: 'queued' | 'running' | 'completed' | 'failed' | 'none';
+  phase?: SyncPhase | null;
+  propertiesSynced?: number;
+  reservationsSynced?: number;
+  inquiriesSynced?: number;
+  messagesSynced?: number;
+  moodsAnalyzed?: number;
+  error?: string | null;
+  startedAt?: string | null;
+  finishedAt?: string | null;
+}
+
+export interface SyncCounts {
+  reservations: number;
+  inquiries: number;
+  messages: number;
+}
+
+export interface SyncStatusResponse {
+  success: boolean;
+  data: {
+    job: SyncJob;
+    counts: SyncCounts;
+  };
+}
+
+export interface StartSyncResponse {
+  success: boolean;
+  status: 'started' | 'running';
+  message: string;
+  data?: SyncJob;
+}
+
 export const conversationsApi = {
   /**
    * Check if user has Hospitable properties
@@ -120,20 +163,19 @@ export const conversationsApi = {
   },
 
   /**
-   * Sync conversations from Hospitable API (called once when account is created)
+   * Start a background sync of conversations from Hospitable API.
+   * Returns immediately; poll getSyncStatus() for progress.
    */
-  async syncConversations(): Promise<{ 
-    success: boolean; 
-    message: string; 
-    data?: { 
-      synced: { 
-        reservations: number; 
-        inquiries: number; 
-        messages: number; 
-      } 
-    } 
-  }> {
+  async syncConversations(): Promise<StartSyncResponse> {
     const response = await apiClient.post('/conversations/sync');
+    return response.data;
+  },
+
+  /**
+   * Poll the status/progress of the current conversation sync.
+   */
+  async getSyncStatus(): Promise<SyncStatusResponse> {
+    const response = await apiClient.get('/conversations/sync/status');
     return response.data;
   },
 

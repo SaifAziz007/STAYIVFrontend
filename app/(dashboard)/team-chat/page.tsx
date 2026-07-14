@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -63,7 +64,10 @@ export default function TeamChatPage() {
   const [newChatOpen, setNewChatOpen] = useState(false);
   const [members, setMembers] = useState<TeamMember[]>([]);
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>([]);
+  const [groupName, setGroupName] = useState('');
   const [creatingChat, setCreatingChat] = useState(false);
+
+  const isGroupSelection = selectedMemberIds.length > 1;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const selectedIdRef = useRef<string | null>(null);
@@ -174,6 +178,7 @@ export default function TeamChatPage() {
   const openNewChat = useCallback(async () => {
     setNewChatOpen(true);
     setSelectedMemberIds([]);
+    setGroupName('');
     try {
       const data = await teamChatApi.listMembers();
       setMembers(data);
@@ -193,7 +198,8 @@ export default function TeamChatPage() {
     setCreatingChat(true);
     try {
       const conversation = await teamChatApi.startConversation(selectedMemberIds, {
-        isGroup: selectedMemberIds.length > 1,
+        isGroup: isGroupSelection,
+        name: isGroupSelection ? groupName.trim() || undefined : undefined,
       });
       setNewChatOpen(false);
       await loadConversations();
@@ -380,8 +386,29 @@ export default function TeamChatPage() {
       <Dialog open={newChatOpen} onOpenChange={setNewChatOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Start a conversation</DialogTitle>
+            <DialogTitle>
+              {isGroupSelection ? 'Create a group chat' : 'Start a conversation'}
+            </DialogTitle>
           </DialogHeader>
+
+          <p className="text-xs text-gray-500 dark:text-muted-foreground -mt-2">
+            Select one teammate for a direct message, or two or more to create a group.
+          </p>
+
+          {isGroupSelection && (
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-gray-900 dark:text-foreground">
+                Group name <span className="text-gray-400">(optional)</span>
+              </label>
+              <Input
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                placeholder="e.g. Cleaning Team"
+                maxLength={60}
+              />
+            </div>
+          )}
+
           <div className="max-h-72 overflow-y-auto space-y-1">
             {members.length === 0 ? (
               <p className="text-sm text-gray-500 dark:text-muted-foreground py-4 text-center">

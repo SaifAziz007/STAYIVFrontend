@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { getSocketBaseUrl } from '@/lib/socket-url';
 
 interface ConversationUpdate {
   type: 'reservation' | 'inquiry';
@@ -80,12 +81,10 @@ export function useRealtimeConversations({
   useEffect(() => {
     if (!userId) return;
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    console.log('Connecting to WebSocket at:', `${apiUrl}/conversations`);
-    
-    // Note: The backend has /api prefix for HTTP routes, but WebSocket connects directly
-
-    const newSocket = io(`${apiUrl}/conversations`, {
+    // The backend has an /api prefix for HTTP routes, but Socket.IO namespaces are
+    // rooted at the origin — getSocketBaseUrl() strips the /api suffix.
+    const baseUrl = getSocketBaseUrl();
+    const newSocket = io(`${baseUrl}/conversations`, {
       transports: ['websocket', 'polling'],
       timeout: 20000,
       forceNew: true,
