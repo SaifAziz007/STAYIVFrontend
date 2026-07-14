@@ -101,13 +101,13 @@ export default function ConversationDetailPage() {
       setLoading(true);
       setError(null);
 
-      const [conversationData, messagesData] = await Promise.all([
-        conversationsApi.getConversationById(conversationId, bookingType),
-        conversationsApi.getConversationMessages(conversationId),
-      ]);
+      // Look the conversation up directly on the server (by id) instead of
+      // scanning a paginated list — otherwise conversations past the first page
+      // fail with "not found".
+      const details = await conversationsApi.getConversationDetails(conversationId, bookingType);
 
-      setConversation(conversationData);
-      setMessages(messagesData.data);
+      setConversation({ ...details.data.conversation, type: details.data.type });
+      setMessages(details.data.messages);
       void loadReservationIds();
     } catch (err) {
       console.error('Error loading conversation:', err);

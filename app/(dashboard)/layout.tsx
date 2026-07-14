@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { authApi, canViewScreen } from '@/lib/auth';
 import { getRequiredScreenForPath } from '@/lib/route-permissions';
@@ -16,6 +16,20 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+  // Restore the collapsed preference across reloads.
+  useEffect(() => {
+    setSidebarCollapsed(localStorage.getItem('sidebarCollapsed') === 'true');
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem('sidebarCollapsed', String(next));
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!authApi.isAuthenticated()) {
@@ -56,8 +70,10 @@ export default function DashboardLayout({
     <PageHeaderProvider>
       <div className="min-h-screen bg-background">
         <Header />
-        <Sidebar />
-        <main className="ml-64 mt-16 min-h-[calc(100vh-4rem)] bg-background p-8">
+        <Sidebar collapsed={sidebarCollapsed} onToggle={toggleSidebar} />
+        <main
+          className={`${sidebarCollapsed ? 'ml-16' : 'ml-64'} mt-16 min-h-[calc(100vh-4rem)] bg-background p-8 transition-[margin] duration-200`}
+        >
           {children}
         </main>
         <Toaster position="top-right" richColors />

@@ -22,6 +22,8 @@ import {
   Inbox,
   MessagesSquare,
   Bot,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { authApi, canViewScreen, type User } from '@/lib/auth';
@@ -58,7 +60,12 @@ const menuItems: MenuItem[] = [
   { name: 'Team', href: '/settings/team', icon: Users, screen: 'USER_MANAGEMENT', adminOnly: true },
 ];
 
-export default function Sidebar() {
+type SidebarProps = {
+  collapsed?: boolean;
+  onToggle?: () => void;
+};
+
+export default function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<User | null>(null);
@@ -83,10 +90,15 @@ export default function Sidebar() {
     });
   }, [mounted, user]);
 
+  const asideWidth = collapsed ? 'w-16' : 'w-64';
+
   // Same structure for SSR + first client paint: no localStorage until mounted
   if (!mounted) {
     return (
-      <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16 shadow-sm transition-colors duration-200">
+      <aside className={cn(
+        'bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16 shadow-sm transition-[width,background-color] duration-200',
+        asideWidth,
+      )}>
         <nav className="p-3 space-y-1" aria-busy="true" aria-label="Loading navigation">
           {menuItems.map((item) => (
             <div
@@ -100,8 +112,23 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-64 bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto fixed left-0 top-16 shadow-sm transition-colors duration-200">
-      <nav className="p-3 space-y-1">
+    <aside className={cn(
+      'bg-white/95 dark:bg-card/95 backdrop-blur-sm border-r border-gray-200 dark:border-border h-[calc(100vh-4rem)] overflow-y-auto overflow-x-hidden fixed left-0 top-16 shadow-sm transition-[width,background-color] duration-200',
+      asideWidth,
+    )}>
+      {/* Collapse / expand toggle */}
+      <div className={cn('flex px-3 pt-3', collapsed ? 'justify-center' : 'justify-end')}>
+        <button
+          onClick={onToggle}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          className="p-2 rounded-lg text-gray-500 dark:text-muted-foreground hover:bg-gray-100 dark:hover:bg-muted/60 hover:text-gray-900 dark:hover:text-foreground transition-colors"
+        >
+          {collapsed ? <PanelLeftOpen className="h-5 w-5" /> : <PanelLeftClose className="h-5 w-5" />}
+        </button>
+      </div>
+
+      <nav className="p-3 pt-2 space-y-1">
         {visible.map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -111,8 +138,10 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
+              title={collapsed ? item.name : undefined}
               className={cn(
                 'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative',
+                collapsed && 'justify-center px-0',
                 isActive
                   ? 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/40 dark:to-indigo-950/40 text-blue-700 dark:text-blue-400 shadow-sm border border-blue-100 dark:border-blue-800/80'
                   : 'text-gray-700 dark:text-muted-foreground hover:bg-gray-50 dark:hover:bg-muted/50 hover:text-gray-900 dark:hover:text-foreground',
@@ -120,14 +149,16 @@ export default function Sidebar() {
             >
               <Icon
                 className={cn(
-                  'h-5 w-5 transition-colors',
+                  'h-5 w-5 shrink-0 transition-colors',
                   isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-muted-foreground',
                 )}
               />
-              <span className={cn('transition-colors', isActive && 'font-semibold')}>
-                {item.name}
-              </span>
-              {isActive && (
+              {!collapsed && (
+                <span className={cn('transition-colors truncate', isActive && 'font-semibold')}>
+                  {item.name}
+                </span>
+              )}
+              {isActive && !collapsed && (
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-600 dark:bg-blue-500 rounded-r-full" />
               )}
             </Link>

@@ -107,6 +107,7 @@ export interface ConversationFilters {
   moods?: string[]; // raw stored mood strings
   earlyCheckin?: boolean;
   lateCheckout?: boolean;
+  search?: string;
 }
 
 export interface MoodStats {
@@ -217,6 +218,7 @@ async getReservationsByCheckout(date: string): Promise<ReservationConversation[]
     if (filters?.moods && filters.moods.length > 0) params.moods = filters.moods.join(',');
     if (filters?.earlyCheckin) params.earlyCheckin = 'true';
     if (filters?.lateCheckout) params.lateCheckout = 'true';
+    if (filters?.search && filters.search.trim()) params.search = filters.search.trim();
 
     const response = await apiClient.get('/conversations', { params });
     return response.data;
@@ -251,33 +253,6 @@ async getReservationsByCheckout(date: string): Promise<ReservationConversation[]
       page++;
     }
     return all;
-  },
-
-  /**
-   * Get conversation by ID
-   */
-  async getConversationById(conversationId: string, bookingType: 'inquiry' | 'reservation'): Promise<Conversation> {
-    // First try to get from the conversations list to determine type
-    const conversationsResponse = await apiClient.get('/conversations', {
-      params: { type: bookingType }
-    });    const conversations = conversationsResponse.data.data;
-    
-    if (!Array.isArray(conversations)) {
-      throw new Error('Invalid conversations response');
-    }
-    
-    let conversation: Conversation;
-    if (bookingType === 'reservation') {
-      conversation = conversations.find((c: ReservationConversation) => c.conversationId === conversationId);
-    } else {
-      conversation = conversations.find((c: InquiryConversation) => c.hospitableInquiryId === conversationId);
-    }
-    
-    if (!conversation) {
-      throw new Error(`Conversation ${conversationId} not found`);
-    }
-    
-    return conversation;
   },
 
   /**

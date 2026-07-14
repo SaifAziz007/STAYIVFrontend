@@ -6,8 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Loader2, MessageCircle, Calendar, Users, MapPin, RefreshCw, AlertCircle, Flag, AlertTriangle, Search, Home, FileText, DollarSign, Upload } from 'lucide-react';
+import { Loader2, MessageCircle, Calendar, Users, MapPin, RefreshCw, AlertCircle, Flag, AlertTriangle, Search, Home, FileText, DollarSign, Upload, X } from 'lucide-react';
 import { conversationsApi, type Conversation, type ReservationConversation, type InquiryConversation, type MoodStats } from '@/lib/conversations-api';
 import ClaimChatModal from '@/components/claim-chat-modal';
 import { cn } from '@/lib/utils';
@@ -51,7 +52,15 @@ export default function AllChatsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [moodStats, setMoodStats] = useState<MoodStats | null>(null);
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const PAGE_SIZE = 20;
+
+  // Debounce the search box so we don't hit the server on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 400);
+    return () => clearTimeout(t);
+  }, [search]);
 
   // Mood chips grouped by display label (backend returns raw mood strings).
   const moodLabelStats = useMemo(() => {
@@ -113,6 +122,7 @@ export default function AllChatsPage() {
         moods: selectedRawMoods.length ? selectedRawMoods : undefined,
         earlyCheckin: showEarlyCheckin,
         lateCheckout: showLateCheckout,
+        search: debouncedSearch || undefined,
       });
       setConversations(res.data);
       setTotal(res.pagination.total ?? res.data.length);
@@ -122,7 +132,7 @@ export default function AllChatsPage() {
     } finally {
       setLoading(false);
     }
-  }, [activeTab, currentPage, selectedRawMoods, showEarlyCheckin, showLateCheckout]);
+  }, [activeTab, currentPage, selectedRawMoods, showEarlyCheckin, showLateCheckout, debouncedSearch]);
 
   useEffect(() => {
     void loadConversations();
@@ -131,7 +141,7 @@ export default function AllChatsPage() {
   // Reset to the first page whenever the tab or filters change.
   useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, selectedMoods, showEarlyCheckin, showLateCheckout]);
+  }, [activeTab, selectedMoods, showEarlyCheckin, showLateCheckout, debouncedSearch]);
 
   // Load the reservation-action id lists once (used to badge action buttons).
   const loadActionIds = useCallback(async () => {
@@ -848,6 +858,26 @@ export default function AllChatsPage() {
 
         {/* Conversations List */}
         <div className="flex-1 min-w-0">
+          {/* Search bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-neutral-500" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by guest name, email or property…"
+              className="pl-9 pr-9"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-neutral-300"
+                aria-label="Clear search"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="all">
