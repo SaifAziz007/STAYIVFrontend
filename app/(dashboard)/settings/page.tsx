@@ -6,8 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Check, X, RefreshCw, Link2, Unlink } from 'lucide-react';
+import { Loader2, Check, X, RefreshCw, Link2, Unlink, Copy } from 'lucide-react';
 import apiClient from '@/lib/api-client';
+import { getHospitableWebhookTargets } from '@/lib/webhook-urls';
 import { authApi } from '@/lib/auth';
 import { usePageHeader } from '@/components/layout/page-header-context';
 
@@ -27,6 +28,20 @@ export default function HospitableSettingsPage() {
   const [status, setStatus] = useState<ConnectionStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+
+  const webhookTargets = getHospitableWebhookTargets();
+
+  const copyWebhookUrl = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedUrl(url);
+      setTimeout(() => setCopiedUrl((current) => (current === url ? null : current)), 2000);
+    } catch {
+      // Clipboard is unavailable (insecure origin / denied) — the URL is on
+      // screen and selectable, so there is nothing to recover from.
+    }
+  };
 
   useEffect(() => {
     loadStatus();
@@ -345,16 +360,39 @@ export default function HospitableSettingsPage() {
       <Card className="mt-6">
         <CardHeader>
           <CardTitle className="text-sm">Webhook Configuration</CardTitle>
-          <CardDescription>Configure this webhook URL in your Hospitable account</CardDescription>
+          <CardDescription>
+            Add each URL to your Hospitable account under the matching webhook type
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all text-foreground border border-transparent dark:border-border">
-            {typeof window !== 'undefined'
-              ? `${window.location.origin.replace(':3000', ':3001')}/api/webhooks/hospitable`
-              : 'Loading...'}
-          </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Add this URL to your Hospitable webhook settings for automatic property sync
+        <CardContent className="space-y-4">
+          {webhookTargets.map((target) => (
+            <div key={target.url}>
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="text-sm font-medium text-foreground">{target.type}</span>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => void copyWebhookUrl(target.url)}
+                >
+                  {copiedUrl === target.url ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                  <span className="ml-2">{copiedUrl === target.url ? 'Copied' : 'Copy'}</span>
+                </Button>
+              </div>
+              <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all text-foreground border border-transparent dark:border-border">
+                {target.url}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{target.description}</p>
+            </div>
+          ))}
+          <p className="text-xs text-muted-foreground">
+            Each Hospitable webhook has a type. The Messages URL must be registered under the
+            message type — the Properties URL only handles property events and will reject
+            message deliveries.
           </p>
         </CardContent>
       </Card>
