@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { authApi, User } from '@/lib/auth';
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import NotificationBell from '@/components/notification-bell';
 import { usePageHeaderContext } from '@/components/layout/page-header-context';
 
 export default function Header() {
@@ -77,6 +78,7 @@ export default function Header() {
             <UserIcon className="h-4 w-4 text-gray-600 dark:text-muted-foreground" />
             <span className="text-sm font-medium text-gray-700 dark:text-foreground max-w-[120px] truncate">{user?.name}</span>
           </div>
+          <NotificationBell />
           <ThemeToggle />
           <Button variant="outline" size="sm" onClick={handleLogout} className="gap-2">
             <LogOut className="h-4 w-4" />

@@ -11,6 +11,10 @@ interface ConversationUpdate {
 interface UseTeamChatOptions {
   userId: string;
   onConversationUpdate?: (update: ConversationUpdate) => void;
+  /** Membership or group settings changed — refetch the conversation. */
+  onConversationChanged?: (conversationId: string) => void;
+  /** @stayiv is working on an answer in this conversation. */
+  onAssistantThinking?: (conversationId: string, thinking: boolean) => void;
 }
 
 /**
@@ -18,14 +22,24 @@ interface UseTeamChatOptions {
  * conversation-list updates (new messages, unread badges) arrive in real time
  * regardless of which thread is currently open.
  */
-export function useTeamChat({ userId, onConversationUpdate }: UseTeamChatOptions) {
+export function useTeamChat({
+  userId,
+  onConversationUpdate,
+  onConversationChanged,
+  onAssistantThinking,
+}: UseTeamChatOptions) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
 
   const onConversationUpdateRef = useRef(onConversationUpdate);
+  const onConversationChangedRef = useRef(onConversationChanged);
+  const onAssistantThinkingRef = useRef(onAssistantThinking);
+
   useEffect(() => {
     onConversationUpdateRef.current = onConversationUpdate;
-  }, [onConversationUpdate]);
+    onConversationChangedRef.current = onConversationChanged;
+    onAssistantThinkingRef.current = onAssistantThinking;
+  }, [onConversationUpdate, onConversationChanged, onAssistantThinking]);
 
   useEffect(() => {
     if (!userId) return;
@@ -52,6 +66,17 @@ export function useTeamChat({ userId, onConversationUpdate }: UseTeamChatOptions
     newSocket.on('team-conversation-update', (update: ConversationUpdate) => {
       onConversationUpdateRef.current?.(update);
     });
+
+    newSocket.on('team-conversation-changed', ({ conversationId }: { conversationId: string }) => {
+      onConversationChangedRef.current?.(conversationId);
+    });
+
+    newSocket.on(
+      'assistant-thinking',
+      ({ conversationId, thinking }: { conversationId: string; thinking: boolean }) => {
+        onAssistantThinkingRef.current?.(conversationId, thinking);
+      },
+    );
 
     setSocket(newSocket);
 
